@@ -1,65 +1,174 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import Header from '../components/Header';
 import SegmentedControl from '../components/SegmentedControl';
 import SectionHeader from '../components/SectionHeader';
 import Card from '../components/Card';
+import JobCard from '../components/JobCard';
+import ProCard from '../components/ProCard';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../state/store';
+import SearchBar from '../components/SearchBar';
+import { Feather } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const theme = useTheme();
   const [segment, setSegment] = React.useState<'food' | 'services'>('food');
   const orders = useAppStore((s) => s.orders);
   const jobs = useAppStore((s) => s.jobs);
+  const spots = useAppStore((s) => s.spots);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
-      <Header title={segment === 'food' ? 'Food' : 'Services'} />
+      <Header location={"12, North Avenue, CP Street, Sagamu"} />
       <View style={{ padding: 16 }}>
         <SegmentedControl
-          options={[{ key: 'food', label: 'Food' }, { key: 'services', label: 'Services' }]}
+          options={[
+            { key: 'food', label: 'Food', renderIcon: (active, color) => <Feather name="shopping-bag" size={16} color={color} /> },
+            { key: 'services', label: 'Services', renderIcon: (active, color) => <Feather name="tool" size={16} color={color} /> },
+          ]}
           value={segment}
           onChange={(k) => setSegment(k as 'food' | 'services')}
         />
+      </View>
+      <View style={{ paddingHorizontal: 16, flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+        <View style={{ flex: 1, height: 90, backgroundColor: theme.colors.surface, borderRadius: 12 }} />
+        <View style={{ flex: 1, height: 90, backgroundColor: theme.colors.surface, borderRadius: 12 }} />
       </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         {segment === 'food' ? (
           <View>
             <SectionHeader title="Recent Orders" onSeeAll={() => {}} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
-              {orders.filter((o) => o.status === 'ongoing').map((o) => (
-                <Card key={o.id} title={o.items[0].name} subtitle={o.items[0].store} price={o.total} />
-              ))}
-            </ScrollView>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 16 }}
+              data={orders.filter((o) => o.status === 'ongoing')}
+              keyExtractor={(o) => o.id}
+              renderItem={({ item: o }) => (
+                <Card
+                  variant="order"
+                  title={o.items[0].name}
+                  subtitle={o.items[0].store}
+                  price={o.total}
+                  image={o.items[0].image ?? 'https://picsum.photos/id/1035/400/400'}
+                  rating={o.items[0].rating ?? 4.2}
+                  reviewsCount={o.items[0].reviews ?? 13}
+                  onAdd={() => {}}
+                />
+              )}
+            />
             <SectionHeader title="Nearby spots" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
-              {[1,2,3,4].map((i) => (
-                <Card key={`n${i}`} title={`Food Court ${i}`} subtitle="Restaurant" price={`Open`} />
+              {spots.map((s) => (
+                <Card
+                  key={s.id}
+                  variant="spot"
+                  title={s.title}
+                  subtitle={s.category}
+                  image={s.image}
+                  rating={s.rating}
+                  deliveryTime={s.deliveryTime}
+                  deliveryFee={s.deliveryFee}
+                  promoBadge={s.promoBadge}
+                  isFavorite={s.isFavorite}
+                  onToggleFavorite={() => {}}
+                />
               ))}
             </ScrollView>
+            <View style={{ paddingHorizontal: 16, marginTop: 12 }}>
+              <SearchBar placeholder="Search here..." />
+            </View>
           </View>
         ) : (
           <View>
+            <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Pressable accessibilityLabel="Post a Job" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                  <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>+</Text>
+                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 4 }}>Post a Job</Text>
+                </Pressable>
+                <Pressable accessibilityLabel="My Jobs" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                  <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>[ ]</Text>
+                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 4 }}>My Jobs</Text>
+                </Pressable>
+                <Pressable accessibilityLabel="Send a Package" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                  <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>→</Text>
+                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 4 }}>Send a Package</Text>
+                </Pressable>
+              </View>
+            </View>
+
             <SectionHeader title="Recent Jobs" onSeeAll={() => {}} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
               {jobs.filter((j) => j.status === 'active').map((j) => (
-                <Card key={j.id} title={j.title} subtitle={j.category} price={j.professional ?? ''} />
+                <JobCard key={j.id} title={j.title} description={'Please help fix leaking kitchen sink and replace tap. Bring your tools.'} category={j.category} />
               ))}
             </ScrollView>
+
+            <View style={{ paddingHorizontal: 16, marginTop: 12 }}>
+              <SearchBar placeholder="Search here..." />
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingTop: 12, paddingLeft: 16 }}>
+              {['All', 'Plumber', 'Electrician', 'Carpenter', 'Painter'].map((c, i) => (
+                <Pressable key={c} accessibilityLabel={`Filter ${c}`} style={[styles.filter, { backgroundColor: i === 0 ? theme.colors.accent : theme.colors.card, borderColor: theme.colors.border }]}> 
+                  <Text style={{ color: i === 0 ? '#fff' : theme.colors.textSecondary, fontWeight: '600' }}>{c}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
             <SectionHeader title="Top Rated Professionals" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
               {[1,2,3,4].map((i) => (
-                <Card key={`p${i}`} title={`Pro ${i}`} subtitle="Plumber" price={"4.9 ⭐"} />
+                <ProCard key={`p${i}`} name={`Pro ${i}`} category={'Plumber'} location={'Sagamu'} distanceText={'13km away'} />
               ))}
             </ScrollView>
           </View>
         )}
       </ScrollView>
+      <Pressable style={[styles.fab, { backgroundColor: '#000' }]} accessibilityLabel="Open Padi chat">
+        <Feather name="message-circle" size={16} color={theme.colors.accent} />
+        <Text style={{ color: theme.colors.accent, marginLeft: 8, fontWeight: '600' }}>Padi</Text>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  qaBtn: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  filter: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginRight: 8,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30,
+    borderRadius: 30,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
 });

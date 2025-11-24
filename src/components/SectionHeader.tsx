@@ -13,12 +13,12 @@ export default function SectionHeader({ title, subtitle, onSeeAll }: SectionHead
   return (
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
-        {!!subtitle && <Text style={{ color: theme.colors.textSecondary, marginTop: 2 }}>{subtitle}</Text>}
+        <Text style={[styles.title, { color: theme.colors.textPrimary, fontFamily: theme.typography.fontFamily }]}>{title}</Text>
+        {!!subtitle && <Text style={{ color: theme.colors.textSecondary, marginTop: 2, fontFamily: theme.typography.fontFamily }}>{subtitle}</Text>}
       </View>
       {!!onSeeAll && (
         <Pressable onPress={onSeeAll} accessibilityLabel={`See all ${title}`} style={styles.seeAll}>
-          <Text style={{ color: theme.colors.accent, fontWeight: '600' }}>See all</Text>
+          <Text style={{ color: theme.colors.accent, fontWeight: '600', fontFamily: theme.typography.fontFamily }}>See all</Text>
         </Pressable>
       )}
     </View>

@@ -12,7 +12,9 @@ export const colors = {
     warning: '#F2C94C',
     danger: '#EB5757',
     success: '#27AE60',
-    overlay: '#00000033'
+    overlay: '#00000033',
+    promoGreen: '#4CAF50',
+    shadow: '#000000'
   },
   dark: {
     background: '#121415',
@@ -27,6 +29,8 @@ export const colors = {
     warning: '#F2C94C',
     danger: '#EB5757',
     success: '#27AE60',
-    overlay: '#00000066'
+    overlay: '#00000066',
+    promoGreen: '#4CAF50',
+    shadow: '#000000'
   }
 };
