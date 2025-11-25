@@ -36,6 +36,9 @@ export type AppState = {
   orders: Order[];
   jobs: Job[];
   spots: Spot[];
+  professionals: Professional[];
+  savedProfessionalIds: string[];
+  toggleSaveProfessional: (id: string) => void;
 };
 
 export type Spot = {
@@ -48,6 +51,14 @@ export type Spot = {
   isFavorite: boolean;
   deliveryFee: number;
   promoBadge: string | null;
+};
+
+export type Professional = {
+  id: string;
+  name: string;
+  category: string;
+  location: string;
+  distanceKm: number;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -119,4 +130,15 @@ export const useAppStore = create<AppState>((set) => ({
       promoBadge: null,
     },
   ],
+  professionals: [
+    { id: 'pr1', name: 'Johnson Smith', category: 'Plumber', location: 'Sagamu', distanceKm: 13 },
+    { id: 'pr2', name: 'Mary John', category: 'Electrician', location: 'Sagamu', distanceKm: 8 },
+    { id: 'pr3', name: 'Ade Bola', category: 'Carpenter', location: 'Sagamu', distanceKm: 10 },
+  ],
+  savedProfessionalIds: [],
+  toggleSaveProfessional: (id) => set((s) => (
+    s.savedProfessionalIds.includes(id)
+      ? { savedProfessionalIds: s.savedProfessionalIds.filter((x) => x !== id) }
+      : { savedProfessionalIds: [...s.savedProfessionalIds, id] }
+  )),
 }));

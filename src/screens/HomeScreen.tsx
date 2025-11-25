@@ -17,6 +17,9 @@ export default function HomeScreen() {
   const orders = useAppStore((s) => s.orders);
   const jobs = useAppStore((s) => s.jobs);
   const spots = useAppStore((s) => s.spots);
+  const professionals = useAppStore((s) => s.professionals);
+  const savedProIds = useAppStore((s) => s.savedProfessionalIds);
+  const toggleSavePro = useAppStore((s) => s.toggleSaveProfessional);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
@@ -83,19 +86,25 @@ export default function HomeScreen() {
         ) : (
           <View>
             <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
-              <View style={{ flexDirection: 'row', gap: 12 }}>
-                <Pressable accessibilityLabel="Post a Job" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
-                  <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>+</Text>
-                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 4 }}>Post a Job</Text>
-                </Pressable>
-                <Pressable accessibilityLabel="My Jobs" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
-                  <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>[ ]</Text>
-                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 4 }}>My Jobs</Text>
-                </Pressable>
-                <Pressable accessibilityLabel="Send a Package" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
-                  <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>→</Text>
-                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 4 }}>Send a Package</Text>
-                </Pressable>
+              <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'space-between' }}>
+                <View style={{ alignItems: 'center' }}>
+                  <Pressable accessibilityLabel="Post a Job" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                    <Feather name="plus" size={22} color={theme.colors.accent} />
+                  </Pressable>
+                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>Post a Job</Text>
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                  <Pressable accessibilityLabel="My Jobs" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                    <Feather name="grid" size={22} color={theme.colors.accent} />
+                  </Pressable>
+                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>My Jobs</Text>
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                  <Pressable accessibilityLabel="Send a Package" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                    <Feather name="send" size={22} color={theme.colors.accent} />
+                  </Pressable>
+                  <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>Send a Package</Text>
+                </View>
               </View>
             </View>
 
@@ -111,17 +120,26 @@ export default function HomeScreen() {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingTop: 12, paddingLeft: 16 }}>
-              {['All', 'Plumber', 'Electrician', 'Carpenter', 'Painter'].map((c, i) => (
-                <Pressable key={c} accessibilityLabel={`Filter ${c}`} style={[styles.filter, { backgroundColor: i === 0 ? theme.colors.accent : theme.colors.card, borderColor: theme.colors.border }]}> 
-                  <Text style={{ color: i === 0 ? '#fff' : theme.colors.textSecondary, fontWeight: '600' }}>{c}</Text>
+              {[
+                { label: 'All', icon: 'grid' as const },
+                { label: 'Plumber', icon: 'tool' as const },
+                { label: 'Electrician', icon: 'zap' as const },
+                { label: 'Carpenter', icon: 'tool' as const },
+                { label: 'Painter', icon: 'edit-3' as const },
+              ].map((c, i) => (
+                <Pressable key={c.label} accessibilityLabel={`Filter ${c.label}`} style={[styles.filter, { backgroundColor: i === 0 ? theme.colors.accent : theme.colors.card, borderColor: theme.colors.border }]}> 
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Feather name={c.icon} size={14} color={i === 0 ? '#fff' : theme.colors.textSecondary} />
+                    <Text style={{ color: i === 0 ? '#fff' : theme.colors.textSecondary, fontWeight: '600' }}>{c.label}</Text>
+                  </View>
                 </Pressable>
               ))}
             </ScrollView>
 
             <SectionHeader title="Top Rated Professionals" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
-              {[1,2,3,4].map((i) => (
-                <ProCard key={`p${i}`} name={`Pro ${i}`} category={'Plumber'} location={'Sagamu'} distanceText={'13km away'} />
+              {professionals.map((p) => (
+                <ProCard key={p.id} id={p.id} name={p.name} category={p.category} location={p.location} distanceText={`${p.distanceKm}km away`} isSaved={savedProIds.includes(p.id)} onToggleSave={toggleSavePro} />
               ))}
             </ScrollView>
           </View>

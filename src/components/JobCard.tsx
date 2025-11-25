@@ -18,14 +18,14 @@ export default function JobCard({ title, description, category, onPress }: JobCa
       style={[styles.container, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
     >
       <View style={{ gap: 6 }}>
+        <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 14, fontFamily: theme.typography.fontFamily }} numberOfLines={2}>{title}</Text>
+        {!!description && (
+          <Text style={{ color: theme.colors.textSecondary, fontSize: 12, lineHeight: 18, fontFamily: theme.typography.fontFamily }}>{description}</Text>
+        )}
         <View style={[styles.tag, { backgroundColor: theme.colors.accentMuted }]}
           accessibilityLabel={`Category: ${category}`}>
           <Text style={{ color: theme.colors.accent, fontWeight: '700', fontSize: 12, fontFamily: theme.typography.fontFamily }}>{category}</Text>
         </View>
-        <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 14, fontFamily: theme.typography.fontFamily }} numberOfLines={2}>{title}</Text>
-        {!!description && (
-          <Text style={{ color: theme.colors.textSecondary, fontSize: 12, fontFamily: theme.typography.fontFamily }} numberOfLines={3}>{description}</Text>
-        )}
       </View>
     </Pressable>
   );

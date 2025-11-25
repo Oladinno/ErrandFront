@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons, MaterialIcons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../state/store';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type HeaderProps = {
   title?: string;
@@ -15,8 +16,9 @@ export type HeaderProps = {
 export default function Header({ title = '', location, onMenuPress, onCartPress, onBellPress }: HeaderProps) {
   const theme = useTheme();
   const cartCount = useAppStore((s) => s.cart.length);
+  const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]} accessibilityRole="header">
+    <View style={[styles.container, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border, paddingTop: Math.max(insets.top, 20) }]} accessibilityRole="header">
       <Pressable onPress={onMenuPress} accessibilityLabel="Open location selector" style={styles.leftIcon}>
         <MaterialIcons name="location-pin" size={22} color={theme.colors.accent} />
       </Pressable>
@@ -52,7 +54,7 @@ export default function Header({ title = '', location, onMenuPress, onCartPress,
 
 const styles = StyleSheet.create({
   container: {
-    height: 64,
+    minHeight: 64,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,

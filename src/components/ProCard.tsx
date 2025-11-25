@@ -1,17 +1,19 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export type ProCardProps = {
+  id: string;
   name: string;
   category: string;
   location: string;
   distanceText: string;
-  onSave?: () => void;
+  isSaved?: boolean;
+  onToggleSave?: (id: string) => void;
 };
 
-export default function ProCard({ name, category, location, distanceText, onSave }: ProCardProps) {
+export default function ProCard({ id, name, category, location, distanceText, isSaved, onToggleSave }: ProCardProps) {
   const theme = useTheme();
   return (
     <Pressable accessibilityLabel={name} style={[styles.container, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
@@ -23,8 +25,8 @@ export default function ProCard({ name, category, location, distanceText, onSave
           <Text style={{ color: theme.colors.textSecondary, fontSize: 12, fontFamily: theme.typography.fontFamily }}>{category} • {location}</Text>
           <Text style={{ color: theme.colors.textSecondary, fontSize: 12, fontFamily: theme.typography.fontFamily }}>{distanceText}</Text>
         </View>
-        <Pressable accessibilityLabel="Save professional" onPress={onSave} style={styles.saveBtn}>
-          <Feather name="flag" size={16} color={theme.colors.textSecondary} />
+        <Pressable accessibilityLabel={isSaved ? 'Unsave professional' : 'Save professional'} onPress={() => onToggleSave?.(id)} style={styles.saveBtn}>
+          <MaterialCommunityIcons name={isSaved ? 'bookmark' : 'bookmark-outline'} size={18} color={isSaved ? theme.colors.accent : theme.colors.textSecondary} />
         </Pressable>
       </View>
     </Pressable>
