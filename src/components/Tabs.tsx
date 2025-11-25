@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Pressable, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 
+export type TabItem = string | { label: string; count?: number };
 export type TabsProps = {
-  tabs: string[];
+  tabs: TabItem[];
   value: string;
   onChange: (tab: string) => void;
 };
@@ -13,16 +14,26 @@ export default function Tabs({ tabs, value, onChange }: TabsProps) {
   return (
     <View style={[styles.container, { borderBottomColor: theme.colors.border }]}>
       {tabs.map((tab) => {
-        const active = tab === value;
+        const label = typeof tab === 'string' ? tab : tab.label;
+        const count = typeof tab === 'string' ? undefined : tab.count;
+        const active = label === value;
         return (
           <Pressable
-            key={tab}
-            onPress={() => onChange(tab)}
+            key={label}
+            onPress={() => onChange(label)}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
             style={styles.tab}
           >
-            <Text style={{ color: active ? theme.colors.accent : theme.colors.textSecondary, fontWeight: active ? '700' : '600' }}>{tab}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={{ color: active ? theme.colors.accent : theme.colors.textSecondary, fontWeight: active ? '700' : '600' }}>{label}</Text>
+              {typeof count === 'number' && (
+                <View style={[styles.badge, { backgroundColor: theme.mode === 'dark' ? '#FFFFFF' : '#000000' }]}
+                  accessibilityLabel={`Count ${count}`}>
+                  <Text style={{ color: theme.mode === 'dark' ? theme.colors.textPrimary : '#FFFFFF', fontWeight: '700', fontSize: 11 }}>{count}</Text>
+                </View>
+              )}
+            </View>
           </Pressable>
         );
       })}
@@ -39,5 +50,13 @@ const styles = StyleSheet.create({
   tab: {
     marginRight: 16,
     paddingVertical: 12,
+  },
+  badge: {
+    minWidth: 22,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
   },
 });

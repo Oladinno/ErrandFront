@@ -16,6 +16,7 @@ export type Order = {
   status: 'ongoing' | 'past';
   items: Product[];
   total: number;
+  eta?: string;
 };
 
 export type Job = {
@@ -24,6 +25,8 @@ export type Job = {
   category: string;
   status: 'active' | 'closed' | 'saved';
   professional?: string;
+  description?: string;
+  offersCount?: number;
 };
 
 export type AppState = {
@@ -39,6 +42,7 @@ export type AppState = {
   professionals: Professional[];
   savedProfessionalIds: string[];
   toggleSaveProfessional: (id: string) => void;
+  toggleSpotFavorite: (id: string) => void;
 };
 
 export type Spot = {
@@ -77,12 +81,14 @@ export const useAppStore = create<AppState>((set) => ({
         { id: 'p2', name: 'Chicken Shawarma', price: 4200, store: 'FoodCourt', rating: 4.2, reviews: 13 },
       ],
       total: 6700,
+      eta: '12-25 mins',
     },
     {
       id: 'o2',
       status: 'past',
       items: [{ id: 'p3', name: 'Chips', price: 1300, store: 'FoodCourt', rating: 4.1, reviews: 8 }],
       total: 1300,
+      eta: '12 mins',
     },
   ],
   jobs: [
@@ -92,8 +98,11 @@ export const useAppStore = create<AppState>((set) => ({
       category: 'Plumber',
       status: 'active',
       professional: 'Johnson Smith',
+      description: 'My kitchen sink has been leaking underneath for the past 2 weeks and the water is damaging my cabinet. Please help fix and replace the tap.',
+      offersCount: 12,
     },
-    { id: 'j2', title: 'Replace tap', category: 'Plumber', status: 'saved' },
+    { id: 'j2', title: 'Replace tap', category: 'Plumber', status: 'saved', description: 'Replace bathroom tap and check for minor leaks.', offersCount: 4 },
+    { id: 'j3', title: 'Install kitchen cabinet hinges', category: 'Carpenter', status: 'closed', description: 'Install and align soft-close hinges on kitchen cabinets.', offersCount: 8, professional: 'Mary John' },
   ],
   spots: [
     {
@@ -141,4 +150,7 @@ export const useAppStore = create<AppState>((set) => ({
       ? { savedProfessionalIds: s.savedProfessionalIds.filter((x) => x !== id) }
       : { savedProfessionalIds: [...s.savedProfessionalIds, id] }
   )),
+  toggleSpotFavorite: (id) => set((s) => ({
+    spots: s.spots.map((sp) => (sp.id === id ? { ...sp, isFavorite: !sp.isFavorite } : sp)),
+  })),
 }));

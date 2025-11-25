@@ -13,7 +13,17 @@ export type SearchBarProps = {
 export default function SearchBar({ placeholder = 'Search', value, onChangeText, onSubmit }: SearchBarProps) {
   const theme = useTheme();
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+    <View style={[
+      styles.container,
+      { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
+      {
+        shadowColor: theme.colors.shadow,
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+      },
+    ]}
       accessibilityLabel="Search input">
       <Ionicons name="search" size={18} color={theme.colors.icon} style={{ marginHorizontal: 8 }} />
       <TextInput

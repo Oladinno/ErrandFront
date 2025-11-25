@@ -17,6 +17,7 @@ export default function HomeScreen() {
   const orders = useAppStore((s) => s.orders);
   const jobs = useAppStore((s) => s.jobs);
   const spots = useAppStore((s) => s.spots);
+  const toggleSpotFavorite = useAppStore((s) => s.toggleSpotFavorite);
   const professionals = useAppStore((s) => s.professionals);
   const savedProIds = useAppStore((s) => s.savedProfessionalIds);
   const toggleSavePro = useAppStore((s) => s.toggleSaveProfessional);
@@ -75,7 +76,7 @@ export default function HomeScreen() {
                   deliveryFee={s.deliveryFee}
                   promoBadge={s.promoBadge}
                   isFavorite={s.isFavorite}
-                  onToggleFavorite={() => {}}
+                  onToggleFavorite={() => toggleSpotFavorite(s.id)}
                 />
               ))}
             </ScrollView>

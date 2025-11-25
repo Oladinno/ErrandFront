@@ -8,25 +8,30 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export type HeaderProps = {
   title?: string;
   location?: string;
+  leftIconType?: 'location' | 'menu';
   onMenuPress?: () => void;
   onCartPress?: () => void;
   onBellPress?: () => void;
 };
 
-export default function Header({ title = '', location, onMenuPress, onCartPress, onBellPress }: HeaderProps) {
+export default function Header({ title = '', location, leftIconType = 'location', onMenuPress, onCartPress, onBellPress }: HeaderProps) {
   const theme = useTheme();
   const cartCount = useAppStore((s) => s.cart.length);
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border, paddingTop: Math.max(insets.top, 20) }]} accessibilityRole="header">
-      <Pressable onPress={onMenuPress} accessibilityLabel="Open location selector" style={styles.leftIcon}>
-        <MaterialIcons name="location-pin" size={22} color={theme.colors.accent} />
+      <Pressable onPress={onMenuPress} accessibilityLabel={leftIconType === 'menu' ? 'Open menu' : 'Open location selector'} style={styles.leftIcon}>
+        {leftIconType === 'menu' ? (
+          <MaterialIcons name="menu" size={22} color={theme.colors.textPrimary} />
+        ) : (
+          <MaterialIcons name="location-pin" size={22} color={theme.colors.accent} />
+        )}
       </Pressable>
       <View style={styles.center}>
         <Text style={[styles.title, { color: theme.colors.textPrimary, fontFamily: theme.typography.fontFamily }]} numberOfLines={1} ellipsizeMode="tail">
           {location ?? title}
         </Text>
-        <Feather name="chevron-down" size={18} color={theme.colors.icon} />
+        {!!location && <Feather name="chevron-down" size={18} color={theme.colors.icon} />}
       </View>
       <View style={styles.actions}>
         <Pressable onPress={onBellPress} accessibilityLabel="Notifications" style={styles.actionBtn}>
