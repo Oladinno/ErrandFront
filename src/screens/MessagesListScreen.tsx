@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../hooks/useTheme';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -70,7 +71,7 @@ export default function MessagesListScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
       <View style={[styles.header, { paddingHorizontal: 16, paddingVertical: 12 }]}> 
         <Pressable onPress={handleBack} accessibilityLabel="Back" style={{ padding: 8 }}>
           <Feather name="chevron-left" size={20} color={theme.colors.textPrimary} />
@@ -109,7 +110,7 @@ export default function MessagesListScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
         ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.colors.border, marginLeft: 72 }} />}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

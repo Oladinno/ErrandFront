@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import SegmentedControl from '../components/SegmentedControl';
 import SectionHeader from '../components/SectionHeader';
@@ -25,7 +26,7 @@ export default function HomeScreen() {
   const toggleSavePro = useAppStore((s) => s.toggleSaveProfessional);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
       <Header location={"12, North Avenue, CP Street, Sagamu"} />
       <View style={{ padding: 16 }}>
         <SegmentedControl
@@ -92,7 +93,7 @@ export default function HomeScreen() {
             <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'space-between' }}>
                 <View style={{ alignItems: 'center' }}>
-                  <Pressable accessibilityLabel="Post a Job" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                  <Pressable accessibilityLabel="Post a Job" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]} onPress={() => navigation.getParent()?.navigate('App', { screen: 'PostJob' })}> 
                     <Feather name="plus" size={22} color={theme.colors.accent} />
                   </Pressable>
                   <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>Post a Job</Text>
@@ -153,7 +154,7 @@ export default function HomeScreen() {
         <Feather name="message-circle" size={16} color={theme.colors.accent} />
         <Text style={{ color: theme.colors.accent, marginLeft: 8, fontWeight: '600' }}>Padi</Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -15,13 +15,17 @@ import SavedScreen from '../screens/SavedScreen';
 import SupportScreen from '../screens/SupportScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAppStore } from '../state/store';
 import CartScreen from '../screens/CartScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import MessagesListScreen from '../screens/MessagesListScreen';
 import ChatDetailScreen from '../screens/ChatDetailScreen';
 import StoreScreen from '../screens/StoreScreen';
+import OrderTrackingScreen from '../screens/OrderTrackingScreen';
+import PostJobScreen from '../screens/PostJobScreen';
+import JobPostedScreen from '../screens/JobPostedScreen';
 
-export type AppStackParamList = { Tabs: undefined; Store: { storeId: string } };
+export type AppStackParamList = { Tabs: undefined; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string } };
 export type RootDrawerParamList = {
   App: undefined;
   Cart: undefined;
@@ -79,6 +83,10 @@ export default function RootNavigator() {
   const { width } = useWindowDimensions();
   const isRTL = I18nManager.isRTL;
   const drawerWidth = Math.min(320, Math.round(width * 0.8));
+  const hydrateCart = useAppStore((s) => s.hydrateCart);
+  const hydrateOrders = useAppStore((s) => s.hydrateOrders);
+  const hydrateJobs = useAppStore((s) => s.hydrateJobs);
+  React.useEffect(() => { hydrateCart(); hydrateOrders(); hydrateJobs(); }, []);
   return (
     <NavigationContainer theme={navTheme}>
       <Drawer.Navigator
@@ -116,6 +124,9 @@ function App() {
     <AppStack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <AppStack.Screen name="Tabs" component={Tabs} />
       <AppStack.Screen name="Store" component={StoreScreen} />
+      <AppStack.Screen name="OrderTracking" component={OrderTrackingScreen} />
+      <AppStack.Screen name="PostJob" component={PostJobScreen} />
+      <AppStack.Screen name="JobPosted" component={JobPostedScreen} />
     </AppStack.Navigator>
   );
 }

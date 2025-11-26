@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import SectionHeader from '../components/SectionHeader';
@@ -36,7 +37,7 @@ export default function ExploreScreen() {
   }, [query]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
       <Header title="Explore" leftIconType="menu" />
       <View style={{ padding: 16 }}>
         <SearchBar placeholder="Search anything..." value={query} onChangeText={setQuery} onSubmit={run} />
@@ -133,7 +134,7 @@ export default function ExploreScreen() {
           )}
         />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

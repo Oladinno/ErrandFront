@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore, Product } from '../state/store';
@@ -51,7 +52,7 @@ export default function CartScreen() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
       <Header title="Shopping Carts" onCartPress={() => navigation.navigate('Cart')} />
       {cart.length === 0 ? (
         <View style={[styles.empty, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
@@ -96,7 +97,7 @@ export default function CartScreen() {
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

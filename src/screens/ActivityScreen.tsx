@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import SegmentedControl from '../components/SegmentedControl';
 import Tabs from '../components/Tabs';
@@ -8,10 +9,12 @@ import { useAppStore } from '../state/store';
 import OrderTrackingCard from '../components/OrderTrackingCard';
 import JobTrackingCard from '../components/JobTrackingCard';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import Badge from '../components/Badge';
 
 export default function ActivityScreen() {
   const theme = useTheme();
+  const navigation = useNavigation<any>();
   const [segment, setSegment] = React.useState<'food' | 'services'>('food');
   const [tab, setTab] = React.useState<string>('All Orders');
   const orders = useAppStore((s) => s.orders);
@@ -22,7 +25,7 @@ export default function ActivityScreen() {
   }, [segment]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
       <Header title="Activity" />
       <View style={{ padding: 16 }}>
         <SegmentedControl
@@ -78,7 +81,17 @@ export default function ActivityScreen() {
         )}
       </ScrollView>
 
-      <Pressable style={[styles.fab, { backgroundColor: '#000' }]} accessibilityLabel={segment === 'food' ? 'Track orders' : 'Add job'}>
+      <Pressable
+        style={[styles.fab, { backgroundColor: '#000' }]}
+        accessibilityLabel={segment === 'food' ? 'Track orders' : 'Add job'}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        onPress={() => {
+          if (segment === 'food') {
+            const latest = orders.find((o) => o.status === 'ongoing') ?? orders[0];
+            navigation.getParent()?.navigate('App', { screen: 'OrderTracking', params: { orderId: latest?.id } });
+          }
+        }}
+      >
         {segment === 'food' ? (
           <>
             <Feather name="link" size={16} color={theme.colors.accent} />
@@ -91,7 +104,7 @@ export default function ActivityScreen() {
           </>
         )}
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 

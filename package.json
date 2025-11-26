@@ -31,5 +31,10 @@
     "babel-preset-expo": "^54.0.6",
     "typescript": "~5.9.2"
   },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": ["@testing-library/jest-native/extend-expect"],
+    "testMatch": ["<rootDir>/src/__tests__/**/*.test.tsx"]
+  },
   "private": true
 }

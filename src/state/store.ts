@@ -10,6 +10,8 @@ export type Product = {
   rating?: number;
   reviews?: number;
   qty?: number;
+  customizations?: { chickenStyle?: string; sides?: string[] };
+  notes?: string;
 };
 
 export type Order = {
@@ -18,6 +20,7 @@ export type Order = {
   items: Product[];
   total: number;
   eta?: string;
+  tracking?: 'created' | 'preparing' | 'transit';
 };
 
 export type Job = {
@@ -28,6 +31,11 @@ export type Job = {
   professional?: string;
   description?: string;
   offersCount?: number;
+  budget?: number;
+  budgetType?: 'hourly' | 'fixed';
+  location?: string;
+  timeRequired?: string;
+  attachments?: string[];
 };
 
 export type AppState = {
@@ -41,7 +49,14 @@ export type AppState = {
   clearCart: () => void;
   hydrateCart: () => void;
   orders: Order[];
+  addOrder: (o: Order) => void;
+  placeOrderFromCart: (eta: string) => string;
+  setOrderTracking: (id: string, stage: NonNullable<Order['tracking']>) => void;
+  hydrateOrders: () => void;
   jobs: Job[];
+  addJob: (job: Job) => void;
+  hydrateJobs: () => void;
+  updateJobStatus: (id: string, status: Job['status']) => void;
   spots: Spot[];
   professionals: Professional[];
   savedProfessionalIds: string[];
@@ -123,6 +138,7 @@ export const useAppStore = create<AppState>((set) => ({
       ],
       total: 6700,
       eta: '12-25 mins',
+      tracking: 'preparing',
     },
     {
       id: 'o2',
@@ -130,8 +146,55 @@ export const useAppStore = create<AppState>((set) => ({
       items: [{ id: 'p3', name: 'Chips', price: 1300, store: 'FoodCourt', rating: 4.1, reviews: 8 }],
       total: 1300,
       eta: '12 mins',
+      tracking: 'transit',
     },
   ],
+  addOrder: (o) => set((s) => {
+    const next = [o, ...s.orders];
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('orders', JSON.stringify(next));
+    } catch {}
+    return { orders: next };
+  }),
+  placeOrderFromCart: (eta) => {
+    let newId = '';
+    set((s) => {
+      const id = `o${Date.now()}`;
+      newId = id;
+      const items = s.cart.map((c) => ({ ...c }));
+      const total = items.reduce((sum, i) => sum + i.price * (i.qty ?? 1), 0);
+      const order: Order = { id, status: 'ongoing', items, total, eta, tracking: 'created' };
+      const next = [order, ...s.orders];
+      try {
+        // @ts-ignore
+        if (globalThis?.localStorage) {
+          globalThis.localStorage.setItem('orders', JSON.stringify(next));
+          globalThis.localStorage.removeItem('cart');
+        }
+      } catch {}
+      return { orders: next, cart: [] };
+    });
+    return newId;
+  },
+  setOrderTracking: (id, stage) => set((s) => {
+    const next = s.orders.map((o) => (o.id === id ? { ...o, tracking: stage } : o));
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('orders', JSON.stringify(next));
+    } catch {}
+    return { orders: next };
+  }),
+  hydrateOrders: () => set((s) => {
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) {
+        const raw = globalThis.localStorage.getItem('orders');
+        if (raw) return { orders: JSON.parse(raw) };
+      }
+    } catch {}
+    return { orders: s.orders };
+  }),
   jobs: [
     {
       id: 'j1',
@@ -145,6 +208,32 @@ export const useAppStore = create<AppState>((set) => ({
     { id: 'j2', title: 'Replace tap', category: 'Plumber', status: 'saved', description: 'Replace bathroom tap and check for minor leaks.', offersCount: 4 },
     { id: 'j3', title: 'Install kitchen cabinet hinges', category: 'Carpenter', status: 'closed', description: 'Install and align soft-close hinges on kitchen cabinets.', offersCount: 8, professional: 'Mary John' },
   ],
+  addJob: (job) => set((s) => {
+    const next = [job, ...s.jobs];
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('jobs', JSON.stringify(next));
+    } catch {}
+    return { jobs: next };
+  }),
+  hydrateJobs: () => set((s) => {
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) {
+        const raw = globalThis.localStorage.getItem('jobs');
+        if (raw) return { jobs: JSON.parse(raw) };
+      }
+    } catch {}
+    return { jobs: s.jobs };
+  }),
+  updateJobStatus: (id, status) => set((s) => {
+    const next = s.jobs.map((j) => (j.id === id ? { ...j, status } : j));
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('jobs', JSON.stringify(next));
+    } catch {}
+    return { jobs: next };
+  }),
   spots: [
     {
       id: 's1',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, KeyboardAvoidingView, Platform, Pressable, ViewStyle } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../hooks/useTheme';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -46,49 +47,51 @@ export default function ChatDetailScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
-      <View style={[styles.chatHeader, { paddingHorizontal: 16, paddingVertical: 12 }]}> 
-        <Pressable onPress={() => navigation.navigate('Messages')} accessibilityLabel="Back" style={{ padding: 8 }}>
-          <Feather name="chevron-left" size={20} color={theme.colors.textPrimary} />
-        </Pressable>
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{thread?.partnerName ?? 'Chat'}</Text>
-          {!!thread?.subtitle && <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>{thread.subtitle}</Text>}
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}> 
+        <View style={[styles.chatHeader, { paddingHorizontal: 16, paddingVertical: 12 }]}> 
+          <Pressable onPress={() => navigation.navigate('Messages')} accessibilityLabel="Back" style={{ padding: 8 }}>
+            <Feather name="chevron-left" size={20} color={theme.colors.textPrimary} />
+          </Pressable>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{thread?.partnerName ?? 'Chat'}</Text>
+            {!!thread?.subtitle && <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>{thread.subtitle}</Text>}
+          </View>
+          <Pressable onPress={() => setMenuOpen((v) => !v)} accessibilityLabel="Menu" style={{ padding: 8 }}>
+            <Feather name="more-horizontal" size={20} color={theme.colors.textPrimary} />
+          </Pressable>
         </View>
-        <Pressable onPress={() => setMenuOpen((v) => !v)} accessibilityLabel="Menu" style={{ padding: 8 }}>
-          <Feather name="more-horizontal" size={20} color={theme.colors.textPrimary} />
-        </Pressable>
-      </View>
-      {menuOpen && (
-        <View style={{ position: 'absolute', right: 16, top: 48, backgroundColor: theme.colors.card, borderColor: theme.colors.border, borderWidth: 1, borderRadius: 12, padding: 8, gap: 8 }}>
-          <Pressable style={{ padding: 8 }}><Text style={{ color: theme.colors.textPrimary }}>Mute</Text></Pressable>
-          <Pressable style={{ padding: 8 }}><Text style={{ color: theme.colors.textPrimary }}>Delete</Text></Pressable>
-        </View>
-      )}
-      <FlatList
-        data={filteredMessages}
-        keyExtractor={(m) => m.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingVertical: 8 }}
-      />
-      <View style={[styles.inputBar, { borderTopColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
-        <TextInput
-          placeholder="Message"
-          placeholderTextColor={theme.colors.textSecondary}
-          value={text}
-          onChangeText={setText}
-          style={[styles.input, { color: theme.colors.textPrimary, backgroundColor: theme.colors.background }]}
+        {menuOpen && (
+          <View style={{ position: 'absolute', right: 16, top: 48, backgroundColor: theme.colors.card, borderColor: theme.colors.border, borderWidth: 1, borderRadius: 12, padding: 8, gap: 8 }}>
+            <Pressable style={{ padding: 8 }}><Text style={{ color: theme.colors.textPrimary }}>Mute</Text></Pressable>
+            <Pressable style={{ padding: 8 }}><Text style={{ color: theme.colors.textPrimary }}>Delete</Text></Pressable>
+          </View>
+        )}
+        <FlatList
+          data={filteredMessages}
+          keyExtractor={(m) => m.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingVertical: 8 }}
         />
-        <Pressable
-          accessibilityLabel="Send"
-          disabled={!text.trim()}
-          onPress={() => { const v = text.trim(); if (!v) return; sendMessage(threadId, v); setText(''); }}
-          style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]}
-        >
-          <Feather name="send" size={18} color={theme.colors.textPrimary} />
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={[styles.inputBar, { borderTopColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
+          <TextInput
+            placeholder="Message"
+            placeholderTextColor={theme.colors.textSecondary}
+            value={text}
+            onChangeText={setText}
+            style={[styles.input, { color: theme.colors.textPrimary, backgroundColor: theme.colors.background }]}
+          />
+          <Pressable
+            accessibilityLabel="Send"
+            disabled={!text.trim()}
+            onPress={() => { const v = text.trim(); if (!v) return; sendMessage(threadId, v); setText(''); }}
+            style={[styles.sendBtn, { opacity: text.trim() ? 1 : 0.5 }]}
+          >
+            <Feather name="send" size={18} color={theme.colors.textPrimary} />
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

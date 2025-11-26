@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, ScrollView, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../hooks/useTheme';
 import { Feather, Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppStore } from '../state/store';
+import ItemCustomizationModal from '../components/ItemCustomizationModal';
 
 type MenuItem = { id: string; name: string; description: string; price: number; rating: number; reviews: number; category: 'Main' | 'Drinks' | 'Side' | 'Snacks'; image?: string };
 
@@ -30,9 +32,12 @@ export default function StoreScreen() {
   ], []);
 
   const filtered = React.useMemo(() => menu.filter((m) => m.category === category), [menu, category]);
+  const [customItem, setCustomItem] = React.useState<MenuItem | null>(null);
+  const [modalVisible, setModalVisible] = React.useState(false);
 
   const onAdd = (item: MenuItem) => {
-    addToCart({ id: item.id, name: item.name, price: item.price, image: item.image, store: spot?.title, rating: item.rating, reviews: item.reviews });
+    setCustomItem(item);
+    setModalVisible(true);
   };
 
   const goBack = () => {
@@ -46,111 +51,114 @@ export default function StoreScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={styles.heroWrap}>
-          <Image source={{ uri: 'https://placehold.co/800x400/282C34/FFFFFF?text=Store+Image+Placeholder' }} style={styles.hero} />
-          <Pressable onPress={goBack} accessibilityLabel="Back" style={[styles.heroBtn, styles.heroBtnLeft, { backgroundColor: theme.colors.card }]}> 
-            <Feather name="chevron-left" size={20} color={theme.colors.textPrimary} />
-          </Pressable>
-          <Pressable onPress={() => {}} accessibilityLabel="Search" style={[styles.heroBtn, styles.heroBtnRightMid, { backgroundColor: theme.colors.card }]}> 
-            <Ionicons name="search" size={18} color={theme.colors.textPrimary} />
-          </Pressable>
-          <Pressable onPress={toggleFav} accessibilityLabel="Favorite" style={[styles.heroBtn, styles.heroBtnRight, { backgroundColor: theme.colors.card }]}> 
-            <MaterialCommunityIcons name={favorited ? 'heart' : 'heart-outline'} size={18} color={favorited ? theme.colors.danger : theme.colors.textPrimary} />
-          </Pressable>
-          <Pressable onPress={() => {}} accessibilityLabel="More options" style={[styles.heroBtn, styles.heroBtnRightFar, { backgroundColor: theme.colors.card }]}> 
-            <Feather name="more-horizontal" size={18} color={theme.colors.textPrimary} />
-          </Pressable>
-          <View style={[styles.fcBadge, { backgroundColor: '#6C3EE8' }]}> 
-            <Text style={{ color: '#fff', fontWeight: '700' }}>FC</Text>
-          </View>
-        </View>
-
-        <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-          <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 20 }}>{spot?.title ?? 'Store'}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
-            <Ionicons name="location" size={14} color={theme.colors.accent} />
-            <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>12, North Avenue, CP Street, Sagamu</Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 16, marginTop: 12 }}>
-            <View>
-              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>₦{spot?.deliveryFee.toLocaleString()}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <MaterialCommunityIcons name="currency-ngn" size={14} color={theme.colors.textSecondary} />
-                <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Delivery Fee</Text>
-              </View>
-            </View>
-            <View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
+      <FlatList
+        data={filtered}
+        keyExtractor={(m) => m.id}
+        renderItem={({ item }) => (
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Image source={{ uri: item.image ?? 'https://picsum.photos/id/1040/120/120' }} style={{ width: 64, height: 64, borderRadius: 8 }} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }} numberOfLines={2}>{item.name}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
                 <FontAwesome name="star" size={12} color="#F59E0B" />
-                <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{spot?.rating.toFixed(2)} <Text style={{ color: theme.colors.textSecondary }}>(23)</Text></Text>
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>{item.rating.toFixed(1)} ({item.reviews})</Text>
               </View>
-              <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Rating</Text>
+              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', marginTop: 6 }}>₦ {item.price.toLocaleString()}</Text>
             </View>
-            <View>
-              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>~ 10 mins</Text>
-              <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Earliest Arrival</Text>
-            </View>
+            <Pressable onPress={() => onAdd(item)} accessibilityLabel="Add" style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.card, borderWidth: 1, borderColor: theme.colors.border }}> 
+              <MaterialCommunityIcons name="plus" size={18} color={theme.colors.textPrimary} />
+            </Pressable>
           </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <Pressable onPress={() => setService('Delivery')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Delivery' ? theme.colors.card : 'transparent' }]}> 
-                <Text style={{ color: theme.colors.textPrimary }}>Delivery</Text>
+        )}
+        ListHeaderComponent={(
+          <>
+            <View style={styles.heroWrap}>
+              <Image source={{ uri: 'https://placehold.co/800x400/282C34/FFFFFF?text=Store+Image+Placeholder' }} style={styles.hero} />
+              <Pressable onPress={goBack} accessibilityLabel="Back" style={[styles.heroBtn, styles.heroBtnLeft, { backgroundColor: theme.colors.card }]}> 
+                <Feather name="chevron-left" size={20} color={theme.colors.textPrimary} />
               </Pressable>
-              <Pressable onPress={() => setService('Pickup')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Pickup' ? theme.colors.card : 'transparent' }]}> 
-                <Text style={{ color: theme.colors.textPrimary }}>Pickup</Text>
+              <Pressable onPress={() => {}} accessibilityLabel="Search" style={[styles.heroBtn, styles.heroBtnRightMid, { backgroundColor: theme.colors.card }]}> 
+                <Ionicons name="search" size={18} color={theme.colors.textPrimary} />
               </Pressable>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#D8F6E7' }}> 
-                <Text style={{ color: theme.colors.success, fontWeight: '700' }}>Open</Text>
+              <Pressable onPress={toggleFav} accessibilityLabel="Favorite" style={[styles.heroBtn, styles.heroBtnRight, { backgroundColor: theme.colors.card }]}> 
+                <MaterialCommunityIcons name={favorited ? 'heart' : 'heart-outline'} size={18} color={favorited ? theme.colors.danger : theme.colors.textPrimary} />
+              </Pressable>
+              <Pressable onPress={() => {}} accessibilityLabel="More options" style={[styles.heroBtn, styles.heroBtnRightFar, { backgroundColor: theme.colors.card }]}> 
+                <Feather name="more-horizontal" size={18} color={theme.colors.textPrimary} />
+              </Pressable>
+              <View style={[styles.fcBadge, { backgroundColor: '#6C3EE8' }]}> 
+                <Text style={{ color: '#fff', fontWeight: '700' }}>FC</Text>
               </View>
-              <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Closes 11:00 PM</Text>
             </View>
-          </View>
-        </View>
 
-        <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.border, marginTop: 12 }} />
-
-        <View style={{ paddingTop: 12 }}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
-            {(['Main','Drinks','Side','Snacks'] as const).map((tab) => {
-              const active = tab === category;
-              return (
-                <Pressable key={tab} onPress={() => setCategory(tab)} style={{ marginRight: 16, paddingVertical: 12 }}> 
-                  <Text style={{ color: active ? theme.colors.accent : theme.colors.textSecondary, fontWeight: active ? '700' : '600' }}>{tab}</Text>
-                  <View style={{ height: 2, backgroundColor: active ? theme.colors.accent : 'transparent', marginTop: 8 }} />
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-          <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
-            <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 16 }}>{category}</Text>
-          </View>
-          <FlatList
-            data={filtered}
-            keyExtractor={(m) => m.id}
-            renderItem={({ item }) => (
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
-                <Image source={{ uri: item.image ?? 'https://picsum.photos/id/1040/120/120' }} style={{ width: 64, height: 64, borderRadius: 8 }} />
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }} numberOfLines={2}>{item.name}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    <FontAwesome name="star" size={12} color="#F59E0B" />
-                    <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>{item.rating.toFixed(1)} ({item.reviews})</Text>
+            <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 20 }}>{spot?.title ?? 'Store'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                <Ionicons name="location" size={14} color={theme.colors.accent} />
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>12, North Avenue, CP Street, Sagamu</Text>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 16, marginTop: 12 }}>
+                <View>
+                  <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>₦{spot?.deliveryFee.toLocaleString()}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <MaterialCommunityIcons name="currency-ngn" size={14} color={theme.colors.textSecondary} />
+                    <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Delivery Fee</Text>
                   </View>
-                  <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', marginTop: 6 }}>₦ {item.price.toLocaleString()}</Text>
                 </View>
-                <Pressable onPress={() => onAdd(item)} accessibilityLabel="Add" style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.card, borderWidth: 1, borderColor: theme.colors.border }}> 
-                  <MaterialCommunityIcons name="plus" size={18} color={theme.colors.textPrimary} />
-                </Pressable>
+                <View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <FontAwesome name="star" size={12} color="#F59E0B" />
+                    <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{spot?.rating.toFixed(2)} <Text style={{ color: theme.colors.textSecondary }}>(23)</Text></Text>
+                  </View>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Rating</Text>
+                </View>
+                <View>
+                  <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>~ 10 mins</Text>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Earliest Arrival</Text>
+                </View>
               </View>
-            )}
-          />
-        </View>
-      </ScrollView>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <Pressable onPress={() => setService('Delivery')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Delivery' ? theme.colors.card : 'transparent' }]}> 
+                    <Text style={{ color: theme.colors.textPrimary }}>Delivery</Text>
+                  </Pressable>
+                  <Pressable onPress={() => setService('Pickup')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Pickup' ? theme.colors.card : 'transparent' }]}> 
+                    <Text style={{ color: theme.colors.textPrimary }}>Pickup</Text>
+                  </Pressable>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#D8F6E7' }}> 
+                    <Text style={{ color: theme.colors.success, fontWeight: '700' }}>Open</Text>
+                  </View>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Closes 11:00 PM</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.border, marginTop: 12 }} />
+
+            <View style={{ paddingTop: 12 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
+                {(['Main','Drinks','Side','Snacks'] as const).map((tab) => {
+                  const active = tab === category;
+                  return (
+                    <Pressable key={tab} onPress={() => setCategory(tab)} style={{ marginRight: 16, paddingVertical: 12 }}> 
+                      <Text style={{ color: active ? theme.colors.accent : theme.colors.textSecondary, fontWeight: active ? '700' : '600' }}>{tab}</Text>
+                      <View style={{ height: 2, backgroundColor: active ? theme.colors.accent : 'transparent', marginTop: 8 }} />
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+              <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+                <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 16 }}>{category}</Text>
+              </View>
+            </View>
+          </>
+        )}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
 
       {!!cart.length && (
         <Pressable onPress={() => navigation.getParent()?.navigate('Cart')} style={[styles.footerBtn, { backgroundColor: '#000' }]}> 
@@ -159,7 +167,12 @@ export default function StoreScreen() {
           <Feather name="chevron-right" size={16} color={theme.colors.accent} style={{ marginLeft: 8 }} />
         </Pressable>
       )}
-    </View>
+      <ItemCustomizationModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        item={{ id: customItem?.id ?? 'item', name: customItem?.name ?? '', image: customItem?.image, basePrice: customItem?.price ?? 0, rating: customItem?.rating ?? 0, reviews: customItem?.reviews ?? 0, store: spot?.title }}
+      />
+    </SafeAreaView>
   );
 }
 
