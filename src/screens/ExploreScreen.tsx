@@ -11,9 +11,11 @@ import { useTheme } from '../hooks/useTheme';
 import SegmentedControl from '../components/SegmentedControl';
 import { useAppStore } from '../state/store';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ExploreScreen() {
   const theme = useTheme();
+  const navigation = useNavigation<any>();
   const [query, setQuery] = React.useState('');
   const [segment, setSegment] = React.useState<'food' | 'services'>('food');
   const spots = useAppStore((s) => s.spots);
@@ -69,6 +71,7 @@ export default function ExploreScreen() {
               promoBadge={s.promoBadge}
               isFavorite={s.isFavorite}
               onToggleFavorite={() => toggleSpotFavorite(s.id)}
+              onPress={() => navigation.getParent()?.navigate('App', { screen: 'Store', params: { storeId: s.id } })}
             />
           )}
         />
@@ -125,6 +128,7 @@ export default function ExploreScreen() {
               promoBadge={s.promoBadge}
               isFavorite={s.isFavorite}
               onToggleFavorite={() => toggleSpotFavorite(s.id)}
+              onPress={() => navigation.getParent()?.navigate('App', { screen: 'Store', params: { storeId: s.id } })}
             />
           )}
         />

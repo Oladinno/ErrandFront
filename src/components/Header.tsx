@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons, MaterialIcons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { RootDrawerParamList } from '../navigation/RootNavigator';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../state/store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,13 +17,15 @@ export type HeaderProps = {
   onBellPress?: () => void;
 };
 
-export default function Header({ title = '', location, leftIconType = 'location', onMenuPress, onCartPress, onBellPress }: HeaderProps) {
+function Header({ title = '', location, leftIconType = 'menu', onMenuPress, onCartPress, onBellPress }: HeaderProps) {
   const theme = useTheme();
-  const cartCount = useAppStore((s) => s.cart.length);
+  const cartCount = useAppStore((s) => s.cart.reduce((n, c) => n + (c.qty ?? 1), 0));
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
   return (
+    <>
     <View style={[styles.container, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border, paddingTop: Math.max(insets.top, 20) }]} accessibilityRole="header">
-      <Pressable onPress={onMenuPress} accessibilityLabel={leftIconType === 'menu' ? 'Open menu' : 'Open location selector'} style={styles.leftIcon}>
+      <Pressable onPress={() => (leftIconType === 'menu' ? navigation.openDrawer() : onMenuPress?.())} accessibilityLabel={leftIconType === 'menu' ? 'Open menu' : 'Open location selector'} style={styles.leftIcon}>
         {leftIconType === 'menu' ? (
           <MaterialIcons name="menu" size={22} color={theme.colors.textPrimary} />
         ) : (
@@ -37,7 +42,7 @@ export default function Header({ title = '', location, leftIconType = 'location'
         <Pressable onPress={onBellPress} accessibilityLabel="Notifications" style={styles.actionBtn}>
           <Ionicons name="notifications-outline" size={20} color={theme.colors.textPrimary} />
         </Pressable>
-        <Pressable onPress={onCartPress} accessibilityLabel={`Cart, ${cartCount} items`} style={styles.actionBtn}>
+        <Pressable onPress={() => { onCartPress?.(); navigation.navigate('Cart'); }} accessibilityLabel={`Cart, ${cartCount} items`} style={styles.actionBtn}>
           <View>
             <MaterialCommunityIcons name="cart-outline" size={22} color={theme.colors.textPrimary} />
             {cartCount > 0 && (
@@ -49,13 +54,27 @@ export default function Header({ title = '', location, leftIconType = 'location'
             )}
           </View>
         </Pressable>
-        <Pressable onPress={() => {}} accessibilityLabel="Open chat" style={styles.actionBtn}>
+        <Pressable onPress={() => navigation.navigate('Messages')} accessibilityLabel="Open chat" style={styles.actionBtn}>
           <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.colors.textPrimary} />
         </Pressable>
+        {/* hamburger icon is exclusively on the left; removed from actions */}
       </View>
     </View>
+    
+    </>
   );
 }
+
+const areEqual = (prev: HeaderProps, next: HeaderProps) => (
+  prev.title === next.title &&
+  prev.location === next.location &&
+  prev.leftIconType === next.leftIconType &&
+  prev.onMenuPress === next.onMenuPress &&
+  prev.onCartPress === next.onCartPress &&
+  prev.onBellPress === next.onBellPress
+);
+
+export default React.memo(Header, areEqual);
 
 const styles = StyleSheet.create({
   container: {

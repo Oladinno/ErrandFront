@@ -10,9 +10,11 @@ import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../state/store';
 import SearchBar from '../components/SearchBar';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const navigation = useNavigation<any>();
   const [segment, setSegment] = React.useState<'food' | 'services'>('food');
   const orders = useAppStore((s) => s.orders);
   const jobs = useAppStore((s) => s.jobs);
@@ -77,6 +79,7 @@ export default function HomeScreen() {
                   promoBadge={s.promoBadge}
                   isFavorite={s.isFavorite}
                   onToggleFavorite={() => toggleSpotFavorite(s.id)}
+                  onPress={() => navigation.getParent()?.navigate('App', { screen: 'Store', params: { storeId: s.id } })}
                 />
               ))}
             </ScrollView>

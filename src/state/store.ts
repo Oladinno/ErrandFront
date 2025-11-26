@@ -9,6 +9,7 @@ export type Product = {
   store?: string;
   rating?: number;
   reviews?: number;
+  qty?: number;
 };
 
 export type Order = {
@@ -36,6 +37,9 @@ export type AppState = {
   cart: Product[];
   addToCart: (p: Product) => void;
   removeFromCart: (id: string) => void;
+  updateCartQty: (id: string, qty: number) => void;
+  clearCart: () => void;
+  hydrateCart: () => void;
   orders: Order[];
   jobs: Job[];
   spots: Spot[];
@@ -70,8 +74,45 @@ export const useAppStore = create<AppState>((set) => ({
   setMode: (mode) => set({ mode }),
   toggleMode: () => set((s) => ({ mode: s.mode === 'light' ? 'dark' : 'light' })),
   cart: [],
-  addToCart: (p) => set((s) => ({ cart: [...s.cart, p] })),
+  addToCart: (p) => set((s) => {
+    const existing = s.cart.find((c) => c.id === p.id);
+    const next = existing
+      ? s.cart.map((c) => (c.id === p.id ? { ...c, qty: (c.qty ?? 1) + 1 } : c))
+      : [...s.cart, { ...p, qty: p.qty ?? 1 }];
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('cart', JSON.stringify(next));
+    } catch {}
+    return { cart: next };
+  }),
   removeFromCart: (id) => set((s) => ({ cart: s.cart.filter((c) => c.id !== id) })),
+  updateCartQty: (id, qty) => set((s) => {
+    const next = s.cart
+      .map((c) => (c.id === id ? { ...c, qty } : c))
+      .filter((c) => (c.qty ?? 1) > 0);
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('cart', JSON.stringify(next));
+    } catch {}
+    return { cart: next };
+  }),
+  clearCart: () => set(() => {
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.removeItem('cart');
+    } catch {}
+    return { cart: [] };
+  }),
+  hydrateCart: () => set((s) => {
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) {
+        const raw = globalThis.localStorage.getItem('cart');
+        if (raw) return { cart: JSON.parse(raw) };
+      }
+    } catch {}
+    return { cart: s.cart };
+  }),
   orders: [
     {
       id: 'o1',
