@@ -1,13 +1,27 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, Pressable, Image, TextInput, Animated, Dimensions } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
-import { Feather, Ionicons, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { useAppStore } from '../state/store';
 
 export type ItemCustomizationModalProps = {
   visible: boolean;
   onClose: () => void;
-  item: { id: string; name: string; image?: string; basePrice: number; rating: number; reviews: number; store?: string };
+  item: {
+    id: string;
+    name: string;
+    image?: string;
+    basePrice: number;
+    rating: number;
+    reviews: number;
+    store?: string;
+    customizations?: Array<{
+      key: string;
+      label: string;
+      type: 'single' | 'multi';
+      options: Array<{ key: string; label: string; extra?: number }>;
+    }>;
+  };
 };
 
 export default function ItemCustomizationModal({ visible, onClose, item }: ItemCustomizationModalProps) {
@@ -19,9 +33,8 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
   const [favorited, setFavorited] = React.useState<boolean>(spot?.isFavorite ?? false);
   const [qty, setQty] = React.useState<number>(1);
   const [notes, setNotes] = React.useState<string>('');
-  const [chickenStyle, setChickenStyle] = React.useState<'plain' | 'deep' | 'rotiserri' | undefined>(undefined);
-  const [sides, setSides] = React.useState<{ coleslaw: boolean; plantain: boolean }>({ coleslaw: false, plantain: false });
   const [currentTotalPrice, setCurrentTotalPrice] = React.useState<number>(item.basePrice);
+  const [selected, setSelected] = React.useState<Record<string, string | string[]>>({});
   const translate = React.useRef(new Animated.Value(Dimensions.get('window').height)).current;
 
   React.useEffect(() => {
@@ -30,9 +43,19 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
   }, [visible]);
 
   React.useEffect(() => {
-    const extra = (chickenStyle === 'rotiserri' ? 500 : 0) + (sides.coleslaw ? 700 : 0) + (sides.plantain ? 900 : 0);
+    const groups = item.customizations ?? [];
+    const extra = groups.reduce((sum, g) => {
+      const sel = selected[g.key];
+      if (!sel) return sum;
+      if (g.type === 'single') {
+        const opt = g.options.find((o) => o.key === sel);
+        return sum + (opt?.extra ?? 0);
+      }
+      const arr = Array.isArray(sel) ? sel : [];
+      return sum + arr.reduce((s, k) => s + (g.options.find((o) => o.key === k)?.extra ?? 0), 0);
+    }, 0);
     setCurrentTotalPrice(item.basePrice + extra);
-  }, [item.basePrice, chickenStyle, sides]);
+  }, [item.basePrice, item.customizations, selected]);
 
   const onToggleFav = () => {
     setFavorited((v) => !v);
@@ -42,6 +65,8 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
   const onAdd = () => {
     const final = currentTotalPrice * qty;
     const newId = `${item.id}-cust-${Date.now()}`;
+    const chickenStyleSel = typeof selected['chickenStyle'] === 'string' ? (selected['chickenStyle'] as string) : undefined;
+    const sidesSel = Array.isArray(selected['sides']) ? (selected['sides'] as string[]) : [];
     addToCart({
       id: newId,
       name: item.name,
@@ -51,7 +76,7 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
       rating: item.rating,
       reviews: item.reviews,
       qty,
-      customizations: { chickenStyle, sides: Object.entries(sides).filter(([, v]) => v).map(([k]) => k) },
+      customizations: { chickenStyle: chickenStyleSel, sides: sidesSel },
       notes,
     });
     onClose();
@@ -74,15 +99,6 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
           <View style={{ padding: 16 }}>
             <View style={styles.bannerWrap}>
               <Image source={{ uri: item.image ?? 'https://picsum.photos/id/1040/600/400' }} style={styles.banner} />
-              <Pressable onPress={() => {}} accessibilityLabel="Search" style={[styles.floatBtn, { left: undefined, right: 60, top: 10, backgroundColor: theme.colors.card }]}> 
-                <Ionicons name="search" size={18} color={theme.colors.textPrimary} />
-              </Pressable>
-              <Pressable onPress={onToggleFav} accessibilityLabel="Favorite" style={[styles.floatBtn, { right: 10, top: 10, backgroundColor: theme.colors.card }]}> 
-                <MaterialCommunityIcons name={favorited ? 'heart' : 'heart-outline'} size={18} color={favorited ? theme.colors.danger : theme.colors.textPrimary} />
-              </Pressable>
-              <Pressable onPress={() => {}} accessibilityLabel="Options" style={[styles.floatBtn, { right: 10, top: 56, backgroundColor: theme.colors.card }]}> 
-                <Feather name="more-horizontal" size={18} color={theme.colors.textPrimary} />
-              </Pressable>
             </View>
 
             <View style={{ marginTop: 12 }}>
@@ -97,49 +113,53 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
               <Text style={{ color: theme.colors.textSecondary, fontSize: 12, marginTop: 6 }}>Contains 1 pack of Jollof rice and chicken. Customization options available</Text>
             </View>
 
-            <View style={{ marginTop: 16 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Chicken Style</Text>
-                <View style={[styles.badge, { borderColor: theme.colors.border }]}>
-                  <Text style={{ color: theme.colors.textSecondary, fontWeight: '600', fontSize: 12 }}>Optional</Text>
-                </View>
-              </View>
-              {([
+            {(item.customizations ?? [
+              { key: 'chickenStyle', label: 'Chicken Style', type: 'single', options: [
                 { key: 'plain', label: 'Plain Fried', extra: 0 },
                 { key: 'deep', label: 'Deep Fried', extra: 0 },
                 { key: 'rotiserri', label: 'Rotiserri-ed + ₦500', extra: 500 },
-              ] as const).map((opt) => {
-                const active = chickenStyle === opt.key;
-                return (
-                  <Pressable key={opt.key} onPress={() => setChickenStyle(opt.key)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-                    <Text style={{ color: theme.colors.textPrimary }}>{opt.label}</Text>
-                    <View style={[styles.radio, { borderColor: theme.colors.border, backgroundColor: active ? theme.colors.accent : 'transparent' }]} />
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <View style={{ marginTop: 16 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Sides</Text>
-                <View style={[styles.badge, { borderColor: theme.colors.border }]}>
-                  <Text style={{ color: theme.colors.textSecondary, fontWeight: '600', fontSize: 12 }}>Optional</Text>
+              ] },
+              { key: 'sides', label: 'Sides', type: 'multi', options: [
+                { key: 'coleslaw', label: 'Coleslaw + ₦700', extra: 700 },
+                { key: 'plantain', label: 'Plantain + ₦900', extra: 900 },
+              ] },
+            ]).map((group) => (
+              <View key={group.key} style={{ marginTop: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{group.label}</Text>
+                  <View style={[styles.badge, { borderColor: theme.colors.border }]}>
+                    <Text style={{ color: theme.colors.textSecondary, fontWeight: '600', fontSize: 12 }}>Optional</Text>
+                  </View>
                 </View>
+                {group.options.map((opt) => {
+                  const sel = selected[group.key];
+                  const active = group.type === 'single' ? sel === opt.key : Array.isArray(sel) ? (sel as string[]).includes(opt.key) : false;
+                  return (
+                    <Pressable
+                      key={opt.key}
+                      onPress={() => {
+                        setSelected((s) => {
+                          const curr = s[group.key];
+                          if (group.type === 'single') return { ...s, [group.key]: opt.key };
+                          const arr = Array.isArray(curr) ? (curr as string[]) : [];
+                          const exists = arr.includes(opt.key);
+                          const next = exists ? arr.filter((k) => k !== opt.key) : [...arr, opt.key];
+                          return { ...s, [group.key]: next };
+                        });
+                      }}
+                      style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}
+                    >
+                      <Text style={{ color: theme.colors.textPrimary }}>{opt.label}</Text>
+                      {group.type === 'single' ? (
+                        <View style={[styles.radio, { borderColor: theme.colors.border, backgroundColor: active ? theme.colors.accent : 'transparent' }]} />
+                      ) : (
+                        <View style={[styles.checkbox, { borderColor: theme.colors.border, backgroundColor: active ? theme.colors.accent : 'transparent' }]} />
+                      )}
+                    </Pressable>
+                  );
+                })}
               </View>
-              {([
-                { key: 'coleslaw', label: 'Coleslaw + ₦700', price: 700 },
-                { key: 'plantain', label: 'Plantain + ₦900', price: 900 },
-              ] as const).map((opt) => {
-                const key = opt.key;
-                const active = sides[key];
-                return (
-                  <Pressable key={key} onPress={() => setSides((s) => ({ ...s, [key]: !s[key] }))} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
-                    <Text style={{ color: theme.colors.textPrimary }}>{opt.label}</Text>
-                    <View style={[styles.checkbox, { borderColor: theme.colors.border, backgroundColor: active ? theme.colors.accent : 'transparent' }]} />
-                  </Pressable>
-                );
-              })}
-            </View>
+            ))}
 
             <View style={{ marginTop: 16 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

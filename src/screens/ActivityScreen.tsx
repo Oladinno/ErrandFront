@@ -64,6 +64,7 @@ export default function ActivityScreen() {
               eta={o.eta}
               statusText={o.status === 'ongoing' ? 'Order is being prepared' : 'Order is on its way'}
               image={o.items[0].image ?? 'https://picsum.photos/id/1035/120/120'}
+              onPress={() => navigation.getParent()?.navigate('App', { screen: 'OrderTracking', params: { orderId: o.id } })}
             />
           ))
         ) : (

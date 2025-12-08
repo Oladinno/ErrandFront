@@ -29,11 +29,12 @@
   "devDependencies": {
     "@types/react": "~19.1.0",
     "babel-preset-expo": "^54.0.6",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "msw": "^0.49.3"
   },
   "jest": {
     "preset": "jest-expo",
-    "setupFilesAfterEnv": ["@testing-library/jest-native/extend-expect"],
+    "setupFilesAfterEnv": ["@testing-library/jest-native/extend-expect", "<rootDir>/src/__tests__/setup-msw.ts"],
     "testMatch": ["<rootDir>/src/__tests__/**/*.test.tsx"]
   },
   "private": true

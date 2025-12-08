@@ -7,7 +7,17 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppStore } from '../state/store';
 import ItemCustomizationModal from '../components/ItemCustomizationModal';
 
-type MenuItem = { id: string; name: string; description: string; price: number; rating: number; reviews: number; category: 'Main' | 'Drinks' | 'Side' | 'Snacks'; image?: string };
+type MenuItem = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  category: 'Main' | 'Drinks' | 'Side' | 'Snacks';
+  image?: string;
+  customizations?: Array<{ key: string; label: string; type: 'single' | 'multi'; options: Array<{ key: string; label: string; extra?: number }> }>;
+};
 
 export default function StoreScreen() {
   const theme = useTheme();
@@ -24,8 +34,43 @@ export default function StoreScreen() {
   const [category, setCategory] = React.useState<'Main' | 'Drinks' | 'Side' | 'Snacks'>('Main');
 
   const menu: MenuItem[] = React.useMemo(() => [
-    { id: 'm1', name: 'Jollof Rice and Chicken with Coleslaw', description: '', price: 4500, rating: 4.2, reviews: 13, category: 'Main', image: 'https://picsum.photos/id/1080/160/160' },
-    { id: 'm2', name: 'Fried Rice and Beef', description: '', price: 5200, rating: 4.4, reviews: 18, category: 'Main', image: 'https://picsum.photos/id/1060/160/160' },
+    {
+      id: 'm1',
+      name: 'Jollof Rice and Chicken with Coleslaw',
+      description: '',
+      price: 4500,
+      rating: 4.2,
+      reviews: 13,
+      category: 'Main',
+      image: 'https://picsum.photos/id/1080/160/160',
+      customizations: [
+        { key: 'chickenStyle', label: 'Chicken Style', type: 'single', options: [
+          { key: 'plain', label: 'Plain Fried', extra: 0 },
+          { key: 'deep', label: 'Deep Fried', extra: 0 },
+          { key: 'rotiserri', label: 'Rotiserri-ed + ₦500', extra: 500 },
+        ] },
+        { key: 'sides', label: 'Sides', type: 'multi', options: [
+          { key: 'coleslaw', label: 'Coleslaw + ₦700', extra: 700 },
+          { key: 'plantain', label: 'Plantain + ₦900', extra: 900 },
+        ] },
+      ],
+    },
+    {
+      id: 'm2',
+      name: 'Fried Rice and Beef',
+      description: '',
+      price: 5200,
+      rating: 4.4,
+      reviews: 18,
+      category: 'Main',
+      image: 'https://picsum.photos/id/1060/160/160',
+      customizations: [
+        { key: 'sides', label: 'Sides', type: 'multi', options: [
+          { key: 'coleslaw', label: 'Coleslaw + ₦700', extra: 700 },
+          { key: 'plantain', label: 'Plantain + ₦900', extra: 900 },
+        ] },
+      ],
+    },
     { id: 'm3', name: 'Cola Drink 50cl', description: '', price: 800, rating: 4.0, reviews: 11, category: 'Drinks', image: 'https://picsum.photos/id/1050/160/160' },
     { id: 'm4', name: 'Chicken Wings (4 pcs)', description: '', price: 3200, rating: 4.3, reviews: 9, category: 'Side', image: 'https://picsum.photos/id/1040/160/160' },
     { id: 'm5', name: 'Plantain Chips', description: '', price: 1200, rating: 4.1, reviews: 7, category: 'Snacks', image: 'https://picsum.photos/id/1035/160/160' },
@@ -92,48 +137,46 @@ export default function StoreScreen() {
               </View>
             </View>
 
-            <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 20 }}>{spot?.title ?? 'Store'}</Text>
+            <View style={{ paddingHorizontal: 16, paddingTop: 12, alignItems: 'center' }}>
+              <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 20, textAlign: 'center' }}>{spot?.title ?? 'Store'}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
                 <Ionicons name="location" size={14} color={theme.colors.accent} />
-                <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>12, North Avenue, CP Street, Sagamu</Text>
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 12, textAlign: 'center' }}>12, North Avenue, CP Street, Sagamu</Text>
               </View>
-              <View style={{ flexDirection: 'row', gap: 16, marginTop: 12 }}>
-                <View>
+              <View style={{ flexDirection: 'row', gap: 24, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ alignItems: 'center' }}>
                   <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>₦{spot?.deliveryFee.toLocaleString()}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <MaterialCommunityIcons name="currency-ngn" size={14} color={theme.colors.textSecondary} />
                     <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Delivery Fee</Text>
                   </View>
                 </View>
-                <View>
+                <View style={{ alignItems: 'center' }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <FontAwesome name="star" size={12} color="#F59E0B" />
                     <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{spot?.rating.toFixed(2)} <Text style={{ color: theme.colors.textSecondary }}>(23)</Text></Text>
                   </View>
                   <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Rating</Text>
                 </View>
-                <View>
+                <View style={{ alignItems: 'center' }}>
                   <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>~ 10 mins</Text>
                   <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Earliest Arrival</Text>
                 </View>
               </View>
 
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Pressable onPress={() => setService('Delivery')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Delivery' ? theme.colors.card : 'transparent' }]}> 
-                    <Text style={{ color: theme.colors.textPrimary }}>Delivery</Text>
-                  </Pressable>
-                  <Pressable onPress={() => setService('Pickup')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Pickup' ? theme.colors.card : 'transparent' }]}> 
-                    <Text style={{ color: theme.colors.textPrimary }}>Pickup</Text>
-                  </Pressable>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, gap: 8 }}>
+                <Pressable onPress={() => setService('Delivery')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Delivery' ? theme.colors.card : 'transparent' }]}> 
+                  <Text style={{ color: theme.colors.textPrimary }}>Delivery</Text>
+                </Pressable>
+                <Pressable onPress={() => setService('Pickup')} style={[styles.pill, { borderColor: theme.colors.border, backgroundColor: service === 'Pickup' ? theme.colors.card : 'transparent' }]}> 
+                  <Text style={{ color: theme.colors.textPrimary }}>Pickup</Text>
+                </Pressable>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: 8 }}>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#D8F6E7' }}> 
+                  <Text style={{ color: theme.colors.success, fontWeight: '700' }}>Open</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#D8F6E7' }}> 
-                    <Text style={{ color: theme.colors.success, fontWeight: '700' }}>Open</Text>
-                  </View>
-                  <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Closes 11:00 PM</Text>
-                </View>
+                <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>Closes 11:00 PM</Text>
               </View>
             </View>
 
@@ -170,7 +213,7 @@ export default function StoreScreen() {
       <ItemCustomizationModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        item={{ id: customItem?.id ?? 'item', name: customItem?.name ?? '', image: customItem?.image, basePrice: customItem?.price ?? 0, rating: customItem?.rating ?? 0, reviews: customItem?.reviews ?? 0, store: spot?.title }}
+        item={{ id: customItem?.id ?? 'item', name: customItem?.name ?? '', image: customItem?.image, basePrice: customItem?.price ?? 0, rating: customItem?.rating ?? 0, reviews: customItem?.reviews ?? 0, store: spot?.title, customizations: customItem?.customizations }}
       />
     </SafeAreaView>
   );

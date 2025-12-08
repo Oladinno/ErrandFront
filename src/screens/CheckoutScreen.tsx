@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, FlatList, ScrollView, Alert, TextInput } from 'react-native';
+import MapView, { Marker, Region } from 'react-native-maps';
+import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../hooks/useTheme';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,6 +10,10 @@ import { useAppStore, Product } from '../state/store';
 
 type Step = 'details' | 'success';
 type ItemRow = { id: string; name: string; price: number; image?: string; quantity: number; options?: string };
+type Coordinate = { latitude: number; longitude: number };
+type MapRegion = { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
+type MapMarker = { id: string; title: string; coordinate: Coordinate; color?: string };
+type MapProps = { region: MapRegion; markers: MapMarker[]; showsUserLocation?: boolean; onSelect?: (c: Coordinate) => void; onLoad?: () => void; onRegionChange?: (r: MapRegion) => void };
 
 export default function CheckoutScreen() {
   const theme = useTheme();
@@ -20,9 +26,16 @@ export default function CheckoutScreen() {
   const [isPickup, setIsPickup] = React.useState(false);
   const [riderNotes, setRiderNotes] = React.useState('');
   const [paymentMethod, setPaymentMethod] = React.useState<'bank' | 'card'>('bank');
+  const [navBusy, setNavBusy] = React.useState(false);
+  const orders = useAppStore((s) => s.orders);
   const deliveryFee = 1200;
   const serviceFee = 500;
   const walletBalance = 42500;
+  const defaultRegion: MapRegion = { latitude: 6.8301, longitude: 3.6460, latitudeDelta: 0.02, longitudeDelta: 0.02 };
+  const [region, setRegion] = React.useState<MapRegion>(defaultRegion);
+  const [selectedCoord, setSelectedCoord] = React.useState<Coordinate | null>(null);
+  const [mapLoaded, setMapLoaded] = React.useState(false);
+  const [mapError, setMapError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setItems(cart.map((c) => ({ id: c.id, name: c.name, price: c.price, image: c.image, quantity: c.qty ?? 1, options: buildOptions(c) })));
@@ -32,6 +45,24 @@ export default function CheckoutScreen() {
   const total = subtotal + (isPickup ? 0 : deliveryFee) + serviceFee;
 
   const format = (n: number) => `₦ ${n.toLocaleString()}`;
+  const formatSelected = (c: Coordinate | null) => (c ? `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}` : undefined);
+
+  React.useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const perm = await Location.requestForegroundPermissionsAsync();
+        if (perm.status !== 'granted') { setMapError('Location permission denied'); return; }
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        if (!active) return;
+        const { latitude, longitude } = pos.coords;
+        setRegion((r) => ({ ...r, latitude, longitude }));
+      } catch {
+        setMapError('Unable to fetch current location');
+      }
+    })();
+    return () => { active = false; };
+  }, []);
 
 
   return (
@@ -51,17 +82,31 @@ export default function CheckoutScreen() {
           <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
             <View style={{ padding: 16, gap: 16 }}>
               <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Delivery</Text>
-              <Image source={{ uri: 'https://placehold.co/600x200/2E2E2E/FFFFFF?text=Map+Placeholder' }} style={{ width: '100%', height: 120, borderRadius: 12 }} />
+              <View style={{ width: '100%', height: 200 }}>
+                <NativeCheckoutMap
+                  region={region}
+                  markers={computePOIs(region)}
+                  showsUserLocation
+                  onSelect={(c) => setSelectedCoord(c)}
+                  onLoad={() => setMapLoaded(true)}
+                  onRegionChange={(r) => setRegion(r)}
+                />
+                {!mapLoaded && (
+                  <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: theme.colors.textSecondary }}>Loading map...</Text>
+                  </View>
+                )}
+              </View>
               <View style={[styles.section, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
                 <View style={styles.infoRow}> 
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Ionicons name="home" size={16} color={theme.colors.accent} />
                     <View>
                       <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Home</Text>
-                      <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>12, North Avenue, CP Street, Sagamu</Text>
+                      <Text style={{ color: theme.colors.textSecondary, fontSize: 12 }}>{formatSelected(selectedCoord) ?? '12, North Avenue, CP Street, Sagamu'}</Text>
                     </View>
                   </View>
-                  <Pressable style={{ paddingHorizontal: 8, paddingVertical: 4 }} accessibilityLabel="Change">
+                  <Pressable style={{ paddingHorizontal: 8, paddingVertical: 4 }} accessibilityLabel="Reset location" onPress={() => setSelectedCoord(null)}>
                     <Feather name="chevron-right" size={18} color={theme.colors.textSecondary} />
                   </Pressable>
                 </View>
@@ -97,6 +142,11 @@ export default function CheckoutScreen() {
                   </Pressable>
                 </View>
               </View>
+              {!!mapError && (
+                <View style={{ paddingHorizontal: 12 }}>
+                  <Text style={{ color: theme.colors.danger }}>{mapError}</Text>
+                </View>
+              )}
 
               <View style={[styles.section, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
                 <Text style={{ color: theme.colors.textPrimary, fontWeight: '700', marginBottom: 8 }}>Order Summary</Text>
@@ -144,6 +194,11 @@ export default function CheckoutScreen() {
                 <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Payment Summary</Text>
                 <View style={{ marginTop: 12, gap: 8 }}>
                   <View style={styles.rowBetween}><Text style={{ color: theme.colors.textSecondary }}>Subtotal</Text><Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{format(subtotal)}</Text></View>
+                  {!isPickup && (
+                    <View style={styles.rowBetween}><Text style={{ color: theme.colors.textSecondary }}>Delivery Fee</Text><Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{format(deliveryFee)}</Text></View>
+                  )}
+                  <View style={styles.rowBetween}><Text style={{ color: theme.colors.textSecondary }}>Service Fee</Text><Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>{format(serviceFee)}</Text></View>
+                  <View style={[styles.rowBetween, { marginTop: 4 }]}><Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Total</Text><Text style={{ color: theme.colors.textPrimary, fontWeight: '800' }}>{format(total)}</Text></View>
                 </View>
               </View>
             </View>
@@ -161,8 +216,21 @@ export default function CheckoutScreen() {
           <MaterialCommunityIcons name="check-circle" size={96} color={theme.colors.accent} />
           <Text style={{ color: theme.colors.textPrimary, fontWeight: '800', fontSize: 20, textAlign: 'center', marginTop: 12 }}>Order Placed Successfully</Text>
           <Text style={{ color: theme.colors.textSecondary, textAlign: 'center', marginTop: 6 }}>Sit back and relax, your order is being processed.</Text>
-          <Pressable onPress={() => navigation.getParent()?.navigate('App', { screen: 'OrderTracking', params: { orderId: createdOrderId } })} style={[styles.successBtn, { backgroundColor: theme.colors.accent }]} accessibilityLabel="Track Order">
-            <Text style={{ color: '#fff', fontWeight: '700' }}>Track Order</Text>
+          <Pressable
+            onPress={() => {
+              try {
+                setNavBusy(true);
+                const id = createdOrderId ?? orders.find((o) => o.status === 'ongoing')?.id ?? undefined;
+                navigation.navigate('App' as never, { screen: 'OrderTracking', params: { orderId: id } } as never);
+              } catch {
+                Alert.alert('Unable to open tracking');
+              } finally {
+                setTimeout(() => setNavBusy(false), 300);
+              }
+            }}
+            style={[styles.successBtn, { backgroundColor: theme.colors.accent, opacity: navBusy ? 0.8 : 1 }]} accessibilityLabel="Track Order"
+          >
+            <Text style={{ color: '#fff', fontWeight: '700' }}>{navBusy ? 'Opening…' : 'Track Order'}</Text>
           </Pressable>
         </View>
       )}
@@ -175,6 +243,58 @@ function buildOptions(p: Product) {
   const cs = p.customizations?.chickenStyle ? `Chicken: ${p.customizations?.chickenStyle}` : undefined;
   const parts = [sides, cs].filter(Boolean);
   return parts.length ? parts.join(' | ') : undefined;
+}
+
+export function xyToCoordinate(x: number, y: number, layout: { width: number; height: number }, region: MapRegion): Coordinate {
+  const lon = region.longitude - region.longitudeDelta / 2 + (x / layout.width) * region.longitudeDelta;
+  const lat = region.latitude + region.latitudeDelta / 2 - (y / layout.height) * region.latitudeDelta;
+  return { latitude: lat, longitude: lon };
+}
+
+export function coordinateToXY(coord: Coordinate, layout: { width: number; height: number }, region: MapRegion): { x: number; y: number } {
+  const x = ((coord.longitude - (region.longitude - region.longitudeDelta / 2)) / region.longitudeDelta) * layout.width;
+  const y = ((region.latitude + region.latitudeDelta / 2 - coord.latitude) / region.latitudeDelta) * layout.height;
+  return { x, y };
+}
+
+export function computePOIs(region: MapRegion): MapMarker[] {
+  const home: MapMarker = { id: 'home', title: 'Home', coordinate: { latitude: region.latitude, longitude: region.longitude }, color: '#2ECC71' };
+  const store: MapMarker = { id: 'store', title: 'Food Court', coordinate: { latitude: region.latitude + 0.003, longitude: region.longitude - 0.003 }, color: '#6C5CE7' };
+  return [home, store];
+}
+
+export async function getCurrentLocation(): Promise<Coordinate | null> {
+  try {
+    const perm = await Location.requestForegroundPermissionsAsync();
+    if (perm.status !== 'granted') return null;
+    const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+    return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+  } catch {
+    return null;
+  }
+}
+
+export function NativeCheckoutMap({ region, markers, showsUserLocation, onSelect, onLoad, onRegionChange }: MapProps) {
+  const theme = useTheme();
+  const initialRegion: Region = { latitude: region.latitude, longitude: region.longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
+  return (
+    <MapView
+      style={{ width: '100%', height: '100%', borderRadius: 12 }}
+      initialRegion={initialRegion}
+      onRegionChangeComplete={(r) => onRegionChange?.({ latitude: r.latitude, longitude: r.longitude, latitudeDelta: r.latitudeDelta, longitudeDelta: r.longitudeDelta })}
+      showsUserLocation={!!showsUserLocation}
+      onMapReady={() => onLoad?.()}
+      onPress={(e) => onSelect?.({ latitude: e.nativeEvent.coordinate.latitude, longitude: e.nativeEvent.coordinate.longitude })}
+    >
+      {markers.map((m) => (
+        <Marker key={m.id} coordinate={{ latitude: m.coordinate.latitude, longitude: m.coordinate.longitude }} tracksViewChanges={false}>
+          <View style={{ paddingHorizontal: 6, paddingVertical: 4, borderRadius: 12, backgroundColor: m.color ?? theme.colors.accent }}>
+            <Text style={{ color: '#fff', fontSize: 10 }}>{m.title}</Text>
+          </View>
+        </Marker>
+      ))}
+    </MapView>
+  );
 }
 
 const styles = StyleSheet.create({

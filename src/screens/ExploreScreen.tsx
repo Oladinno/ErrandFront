@@ -53,7 +53,7 @@ export default function ExploreScreen() {
         </View>
       </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-        <SectionHeader title="🔥 Top spots" onSeeAll={() => {}} />
+        <SectionHeader title="🔥 Top spots" onSeeAll={() => navigation.getParent()?.navigate('App', { screen: 'ExploreResults', params: { type: 'top_spots' } })} />
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -110,7 +110,7 @@ export default function ExploreScreen() {
           ))}
         </ScrollView>
 
-        <SectionHeader title="😎 Recommended" onSeeAll={() => {}} />
+        <SectionHeader title="😎 Recommended" onSeeAll={() => navigation.getParent()?.navigate('App', { screen: 'ExploreResults', params: { type: 'recommended' } })} />
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}

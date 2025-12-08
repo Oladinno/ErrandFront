@@ -24,6 +24,10 @@ export default function HomeScreen() {
   const professionals = useAppStore((s) => s.professionals);
   const savedProIds = useAppStore((s) => s.savedProfessionalIds);
   const toggleSavePro = useAppStore((s) => s.toggleSaveProfessional);
+  const addToCart = useAppStore((s) => s.addToCart);
+  const [serviceCategory, setServiceCategory] = React.useState<'All' | 'Plumber' | 'Electrician' | 'Carpenter' | 'Painter'>('All');
+  const filteredJobs = React.useMemo(() => jobs.filter((j) => j.status === 'active' && (serviceCategory === 'All' || j.category === serviceCategory)), [jobs, serviceCategory]);
+  const filteredPros = React.useMemo(() => professionals.filter((p) => serviceCategory === 'All' || p.category === serviceCategory), [professionals, serviceCategory]);
 
   return (
     <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
@@ -45,7 +49,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         {segment === 'food' ? (
           <View>
-            <SectionHeader title="Recent Orders" onSeeAll={() => {}} />
+            <SectionHeader title="Recent Orders" onSeeAll={() => navigation.getParent()?.navigate('App', { screen: 'RecentOrders' })} />
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -61,7 +65,11 @@ export default function HomeScreen() {
                   image={o.items[0].image ?? 'https://picsum.photos/id/1035/400/400'}
                   rating={o.items[0].rating ?? 4.2}
                   reviewsCount={o.items[0].reviews ?? 13}
-                  onAdd={() => {}}
+                  onAdd={() => {
+                    o.items.forEach((it) => {
+                      addToCart({ id: it.id, name: it.name, price: it.price, image: it.image, store: it.store, rating: it.rating, reviews: it.reviews });
+                    });
+                  }}
                 />
               )}
             />
@@ -113,9 +121,9 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            <SectionHeader title="Recent Jobs" onSeeAll={() => {}} />
+            <SectionHeader title="Recent Jobs" onSeeAll={() => navigation.getParent()?.navigate('App', { screen: 'RecentJobs' })} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
-              {jobs.filter((j) => j.status === 'active').map((j) => (
+              {filteredJobs.map((j) => (
                 <JobCard key={j.id} title={j.title} description={'Please help fix leaking kitchen sink and replace tap. Bring your tools.'} category={j.category} />
               ))}
             </ScrollView>
@@ -132,10 +140,18 @@ export default function HomeScreen() {
                 { label: 'Carpenter', icon: 'tool' as const },
                 { label: 'Painter', icon: 'edit-3' as const },
               ].map((c, i) => (
-                <Pressable key={c.label} accessibilityLabel={`Filter ${c.label}`} style={[styles.filter, { backgroundColor: i === 0 ? theme.colors.accent : theme.colors.card, borderColor: theme.colors.border }]}> 
+                <Pressable
+                  key={c.label}
+                  accessibilityLabel={`Filter ${c.label}`}
+                  onPress={() => setServiceCategory(c.label as any)}
+                  style={[
+                    styles.filter,
+                    { backgroundColor: serviceCategory === c.label ? theme.colors.accent : theme.colors.card, borderColor: theme.colors.border },
+                  ]}
+                > 
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Feather name={c.icon} size={14} color={i === 0 ? '#fff' : theme.colors.textSecondary} />
-                    <Text style={{ color: i === 0 ? '#fff' : theme.colors.textSecondary, fontWeight: '600' }}>{c.label}</Text>
+                    <Feather name={c.icon} size={14} color={serviceCategory === c.label ? '#fff' : theme.colors.textSecondary} />
+                    <Text style={{ color: serviceCategory === c.label ? '#fff' : theme.colors.textSecondary, fontWeight: '600' }}>{c.label}</Text>
                   </View>
                 </Pressable>
               ))}
@@ -143,7 +159,7 @@ export default function HomeScreen() {
 
             <SectionHeader title="Top Rated Professionals" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
-              {professionals.map((p) => (
+              {filteredPros.map((p) => (
                 <ProCard key={p.id} id={p.id} name={p.name} category={p.category} location={p.location} distanceText={`${p.distanceKm}km away`} isSaved={savedProIds.includes(p.id)} onToggleSave={toggleSavePro} />
               ))}
             </ScrollView>

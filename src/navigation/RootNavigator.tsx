@@ -21,11 +21,14 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import MessagesListScreen from '../screens/MessagesListScreen';
 import ChatDetailScreen from '../screens/ChatDetailScreen';
 import StoreScreen from '../screens/StoreScreen';
+import ExploreResultsScreen from '../screens/ExploreResultsScreen';
+import RecentOrdersScreen from '../screens/RecentOrdersScreen';
+import RecentJobsScreen from '../screens/RecentJobsScreen';
 import OrderTrackingScreen from '../screens/OrderTrackingScreen';
 import PostJobScreen from '../screens/PostJobScreen';
 import JobPostedScreen from '../screens/JobPostedScreen';
 
-export type AppStackParamList = { Tabs: undefined; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string } };
+export type AppStackParamList = { Tabs: undefined; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string }; ExploreResults: { type: 'top_spots' | 'recommended' }; RecentOrders: undefined; RecentJobs: undefined };
 export type RootDrawerParamList = {
   App: undefined;
   Cart: undefined;
@@ -124,6 +127,9 @@ function App() {
     <AppStack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <AppStack.Screen name="Tabs" component={Tabs} />
       <AppStack.Screen name="Store" component={StoreScreen} />
+      <AppStack.Screen name="ExploreResults" component={ExploreResultsScreen} />
+      <AppStack.Screen name="RecentOrders" component={RecentOrdersScreen} />
+      <AppStack.Screen name="RecentJobs" component={RecentJobsScreen} />
       <AppStack.Screen name="OrderTracking" component={OrderTrackingScreen} />
       <AppStack.Screen name="PostJob" component={PostJobScreen} />
       <AppStack.Screen name="JobPosted" component={JobPostedScreen} />

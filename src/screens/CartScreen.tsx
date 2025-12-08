@@ -56,9 +56,9 @@ export default function CartScreen() {
       <Header title="Shopping Carts" onCartPress={() => navigation.navigate('Cart')} />
       {cart.length === 0 ? (
         <View style={[styles.empty, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
-          <Text style={{ color: theme.colors.textSecondary }}>Your cart is empty.</Text>
+          <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily }}>Your cart is empty.</Text>
           <Pressable style={[styles.ctaSecondary, { borderColor: theme.colors.border }]} onPress={() => navigation.navigate('App')} accessibilityLabel="Continue shopping">
-            <Text style={{ color: theme.colors.textPrimary, fontWeight: '600' }}>Continue Shopping</Text>
+            <Text style={{ color: theme.colors.textPrimary, fontWeight: '600', fontFamily: theme.typography.fontFamily }}>Continue Shopping</Text>
           </Pressable>
         </View>
       ) : (
@@ -88,7 +88,7 @@ export default function CartScreen() {
             </View>
             <View style={styles.actions}>
               <Pressable style={[styles.ctaSecondary, { borderColor: theme.colors.border }]} onPress={() => navigation.navigate('App')} accessibilityLabel="Continue shopping">
-                <Text style={{ color: theme.colors.textPrimary, fontWeight: '600' }}>Continue Shopping</Text>
+                <Text style={{ color: theme.colors.textPrimary, fontWeight: '600', fontFamily: theme.typography.fontFamily }}>Continue Shopping</Text>
               </Pressable>
               <Pressable style={[styles.ctaPrimary, { backgroundColor: theme.colors.accent }]} onPress={() => navigation.navigate('Checkout')} accessibilityLabel="Proceed to checkout">
                 <Text style={{ color: '#fff', fontWeight: '700' }}>Proceed to Checkout</Text>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   summary: { borderTopWidth: 1, borderBottomWidth: 1, borderLeftWidth: 1, borderRightWidth: 1, margin: 16, borderRadius: 12, padding: 16, gap: 8 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
   actions: { flexDirection: 'row', gap: 12, marginTop: 12 },
-  ctaSecondary: { flex: 1, borderWidth: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
+  ctaSecondary: { flex: 1, borderWidth: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingVertical: 12, minHeight: 44 },
   ctaPrimary: { flex: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
   empty: { margin: 16, borderWidth: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
 });
