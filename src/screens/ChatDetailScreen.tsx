@@ -31,14 +31,14 @@ export default function ChatDetailScreen() {
   const renderItem = ({ item }: any) => {
     const isUser = item.sender === 'user';
     const bubbleVariant: ViewStyle = isUser
-      ? { alignSelf: 'flex-end', backgroundColor: '#007AFF' }
-      : { alignSelf: 'flex-start', backgroundColor: '#F2F2F7' };
+      ? { alignSelf: 'flex-end', backgroundColor: theme.colors.accent }
+      : { alignSelf: 'flex-start', backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border };
     const bubbleStyle = [styles.bubble, bubbleVariant];
     const textStyle = { color: isUser ? '#fff' : theme.colors.textPrimary };
     const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return (
       <View style={{ marginHorizontal: 12, marginVertical: 6 }}>
-        <View style={bubbleStyle}>
+        <View style={bubbleStyle} accessibilityLabel={isUser ? 'user-bubble' : 'partner-bubble'}>
           <Text style={[styles.bubbleText, textStyle]}>{item.text}</Text>
         </View>
         <Text style={{ color: theme.colors.textSecondary, fontSize: 12, marginTop: 4, alignSelf: isUser ? 'flex-end' : 'flex-start' }}>{time}</Text>

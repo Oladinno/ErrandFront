@@ -9,13 +9,16 @@ import JobCard from '../components/JobCard';
 import ProCard from '../components/ProCard';
 import { useTheme } from '../hooks/useTheme';
 import { useAppStore } from '../state/store';
+import { useMessagesStore } from '../state/messagesStore';
 import SearchBar from '../components/SearchBar';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { RootDrawerParamList } from '../navigation/RootNavigator';
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
   const [segment, setSegment] = React.useState<'food' | 'services'>('food');
   const orders = useAppStore((s) => s.orders);
   const jobs = useAppStore((s) => s.jobs);
@@ -28,6 +31,7 @@ export default function HomeScreen() {
   const [serviceCategory, setServiceCategory] = React.useState<'All' | 'Plumber' | 'Electrician' | 'Carpenter' | 'Painter'>('All');
   const filteredJobs = React.useMemo(() => jobs.filter((j) => j.status === 'active' && (serviceCategory === 'All' || j.category === serviceCategory)), [jobs, serviceCategory]);
   const filteredPros = React.useMemo(() => professionals.filter((p) => serviceCategory === 'All' || p.category === serviceCategory), [professionals, serviceCategory]);
+  const setSelectedThread = useMessagesStore((s) => s.setSelectedThreadId);
 
   return (
     <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
@@ -107,13 +111,13 @@ export default function HomeScreen() {
                   <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>Post a Job</Text>
                 </View>
                 <View style={{ alignItems: 'center' }}>
-                  <Pressable accessibilityLabel="My Jobs" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                  <Pressable accessibilityLabel="My Jobs" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]} onPress={() => navigation.getParent()?.navigate('My Jobs')}> 
                     <Feather name="grid" size={22} color={theme.colors.accent} />
                   </Pressable>
                   <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>My Jobs</Text>
                 </View>
                 <View style={{ alignItems: 'center' }}>
-                  <Pressable accessibilityLabel="Send a Package" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]}> 
+                  <Pressable accessibilityLabel="Send a Package" style={[styles.qaBtn, { backgroundColor: theme.colors.card }]} onPress={() => navigation.getParent()?.navigate('Send a Package')}> 
                     <Feather name="send" size={22} color={theme.colors.accent} />
                   </Pressable>
                   <Text style={{ color: theme.colors.accent, fontWeight: '600', marginTop: 8 }}>Send a Package</Text>
@@ -166,7 +170,14 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
-      <Pressable style={[styles.fab, { backgroundColor: '#000' }]} accessibilityLabel="Open Padi chat">
+      <Pressable
+        style={[styles.fab, { backgroundColor: '#000' }]}
+        accessibilityLabel="Open Padi chat"
+        onPress={() => {
+          setSelectedThread('t1');
+          navigation.getParent()?.navigate('Messages', { screen: 'Chat Detail' });
+        }}
+      >
         <Feather name="message-circle" size={16} color={theme.colors.accent} />
         <Text style={{ color: theme.colors.accent, marginLeft: 8, fontWeight: '600' }}>Padi</Text>
       </Pressable>

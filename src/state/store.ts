@@ -62,6 +62,8 @@ export type AppState = {
   savedProfessionalIds: string[];
   toggleSaveProfessional: (id: string) => void;
   toggleSpotFavorite: (id: string) => void;
+  hydrateSpots: () => void;
+  hydrateSavedPros: () => void;
 };
 
 export type Spot = {
@@ -275,12 +277,42 @@ export const useAppStore = create<AppState>((set) => ({
     { id: 'pr3', name: 'Ade Bola', category: 'Carpenter', location: 'Sagamu', distanceKm: 10 },
   ],
   savedProfessionalIds: [],
-  toggleSaveProfessional: (id) => set((s) => (
-    s.savedProfessionalIds.includes(id)
-      ? { savedProfessionalIds: s.savedProfessionalIds.filter((x) => x !== id) }
-      : { savedProfessionalIds: [...s.savedProfessionalIds, id] }
-  )),
-  toggleSpotFavorite: (id) => set((s) => ({
-    spots: s.spots.map((sp) => (sp.id === id ? { ...sp, isFavorite: !sp.isFavorite } : sp)),
-  })),
+  toggleSaveProfessional: (id) => set((s) => {
+    const next = s.savedProfessionalIds.includes(id)
+      ? s.savedProfessionalIds.filter((x) => x !== id)
+      : [...s.savedProfessionalIds, id];
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('savedPros', JSON.stringify(next));
+    } catch {}
+    return { savedProfessionalIds: next };
+  }),
+  toggleSpotFavorite: (id) => set((s) => {
+    const nextSpots = s.spots.map((sp) => (sp.id === id ? { ...sp, isFavorite: !sp.isFavorite } : sp));
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) globalThis.localStorage.setItem('spots', JSON.stringify(nextSpots));
+    } catch {}
+    return { spots: nextSpots };
+  }),
+  hydrateSpots: () => set((s) => {
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) {
+        const raw = globalThis.localStorage.getItem('spots');
+        if (raw) return { spots: JSON.parse(raw) };
+      }
+    } catch {}
+    return { spots: s.spots };
+  }),
+  hydrateSavedPros: () => set((s) => {
+    try {
+      // @ts-ignore
+      if (globalThis?.localStorage) {
+        const raw = globalThis.localStorage.getItem('savedPros');
+        if (raw) return { savedProfessionalIds: JSON.parse(raw) };
+      }
+    } catch {}
+    return { savedProfessionalIds: s.savedProfessionalIds };
+  }),
 }));

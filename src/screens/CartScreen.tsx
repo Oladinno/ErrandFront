@@ -57,7 +57,7 @@ export default function CartScreen() {
       {cart.length === 0 ? (
         <View style={[styles.empty, { borderColor: theme.colors.border, backgroundColor: theme.colors.card }]}> 
           <Text style={{ color: theme.colors.textSecondary, fontFamily: theme.typography.fontFamily }}>Your cart is empty.</Text>
-          <Pressable style={[styles.ctaSecondary, { borderColor: theme.colors.border }]} onPress={() => navigation.navigate('App')} accessibilityLabel="Continue shopping">
+          <Pressable style={[styles.ctaSecondary, { borderColor: theme.colors.border }]} onPress={() => navigation.navigate('App', { screen: 'Tabs', params: { screen: 'Home' } })} accessibilityLabel="Continue shopping">
             <Text style={{ color: theme.colors.textPrimary, fontWeight: '600', fontFamily: theme.typography.fontFamily }}>Continue Shopping</Text>
           </Pressable>
         </View>
@@ -87,7 +87,7 @@ export default function CartScreen() {
               <Text style={{ color: theme.colors.textPrimary, fontWeight: '800' }}>₦ {total.toLocaleString()}</Text>
             </View>
             <View style={styles.actions}>
-              <Pressable style={[styles.ctaSecondary, { borderColor: theme.colors.border }]} onPress={() => navigation.navigate('App')} accessibilityLabel="Continue shopping">
+              <Pressable style={[styles.ctaSecondary, { borderColor: theme.colors.border }]} onPress={() => navigation.navigate('App', { screen: 'Tabs', params: { screen: 'Home' } })} accessibilityLabel="Continue shopping">
                 <Text style={{ color: theme.colors.textPrimary, fontWeight: '600', fontFamily: theme.typography.fontFamily }}>Continue Shopping</Text>
               </Pressable>
               <Pressable style={[styles.ctaPrimary, { backgroundColor: theme.colors.accent }]} onPress={() => navigation.navigate('Checkout')} accessibilityLabel="Proceed to checkout">

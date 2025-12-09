@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme, NavigatorScreenParams } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator, DrawerContentScrollView } from '@react-navigation/drawer';
@@ -14,6 +14,8 @@ import PromotionsScreen from '../screens/PromotionsScreen';
 import SavedScreen from '../screens/SavedScreen';
 import SupportScreen from '../screens/SupportScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import MyJobsScreen from '../screens/MyJobsScreen';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppStore } from '../state/store';
 import CartScreen from '../screens/CartScreen';
@@ -28,20 +30,24 @@ import OrderTrackingScreen from '../screens/OrderTrackingScreen';
 import PostJobScreen from '../screens/PostJobScreen';
 import JobPostedScreen from '../screens/JobPostedScreen';
 
-export type AppStackParamList = { Tabs: undefined; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string }; ExploreResults: { type: 'top_spots' | 'recommended' }; RecentOrders: undefined; RecentJobs: undefined };
+type PackageDraft = { pickupAddress: string; pickupName: string; pickupPhone: string; dropAddress: string; dropName: string; dropPhone: string; description: string; size: 'small'|'medium'|'large' };
+export type TabParamList = { Home: undefined; Explore: undefined; Activity: undefined; Profile: undefined };
+export type AppStackParamList = { Tabs: NavigatorScreenParams<TabParamList>; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string }; ExploreResults: { type: 'top_spots' | 'recommended' }; RecentOrders: undefined; RecentJobs: undefined };
 export type RootDrawerParamList = {
-  App: undefined;
+  App: NavigatorScreenParams<AppStackParamList>;
   Cart: undefined;
-  Checkout: undefined;
-  Messages: undefined;
+  Checkout: { draft?: PackageDraft } | undefined;
+  Messages: NavigatorScreenParams<MessagesStackParamList> | undefined;
   'Send a Package': undefined;
   Promotions: undefined;
   Saved: undefined;
   Support: undefined;
   Settings: undefined;
+  Notifications: undefined;
+  'My Jobs': undefined;
 };
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
 type MessagesStackParamList = { 'Messages': undefined; 'Chat Detail': undefined };
@@ -89,7 +95,9 @@ export default function RootNavigator() {
   const hydrateCart = useAppStore((s) => s.hydrateCart);
   const hydrateOrders = useAppStore((s) => s.hydrateOrders);
   const hydrateJobs = useAppStore((s) => s.hydrateJobs);
-  React.useEffect(() => { hydrateCart(); hydrateOrders(); hydrateJobs(); }, []);
+  const hydrateSpots = useAppStore((s) => s.hydrateSpots);
+  const hydrateSavedPros = useAppStore((s) => s.hydrateSavedPros);
+  React.useEffect(() => { hydrateCart(); hydrateOrders(); hydrateJobs(); hydrateSpots(); hydrateSavedPros(); }, []);
   return (
     <NavigationContainer theme={navTheme}>
       <Drawer.Navigator
@@ -115,8 +123,10 @@ export default function RootNavigator() {
         <Drawer.Screen name="Send a Package" component={SendPackageScreen} />
         <Drawer.Screen name="Promotions" component={PromotionsScreen} />
         <Drawer.Screen name="Saved" component={SavedScreen} />
+        <Drawer.Screen name="Notifications" component={NotificationsScreen} />
         <Drawer.Screen name="Support" component={SupportScreen} />
         <Drawer.Screen name="Settings" component={SettingsScreen} />
+        <Drawer.Screen name="My Jobs" component={MyJobsScreen} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
@@ -164,9 +174,13 @@ function CustomDrawerContent({ navigation }: any) {
           <MaterialCommunityIcons name="bookmark-outline" size={18} color={theme.colors.textPrimary} />
           <Text style={{ color: theme.colors.textPrimary, fontWeight: '600' }}>Saved</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Notifications" onPress={() => { navigation.closeDrawer(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Notifications" onPress={() => { navigation.navigate('Notifications'); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
           <Ionicons name="notifications-outline" size={18} color={theme.colors.textPrimary} />
           <Text style={{ color: theme.colors.textPrimary, fontWeight: '600' }}>Notifications</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="My Jobs" onPress={() => { navigation.navigate('My Jobs'); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
+          <Feather name="briefcase" size={18} color={theme.colors.textPrimary} />
+          <Text style={{ color: theme.colors.textPrimary, fontWeight: '600' }}>My Jobs</Text>
         </Pressable>
       </View>
       <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
