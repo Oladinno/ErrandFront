@@ -28,12 +28,12 @@ export default function RecentOrdersScreen() {
         contentContainerStyle={{ padding: 16, gap: 12 }}
         renderItem={({ item: o }) => (
           <OrderTrackingCard
-            storeName={o.items[0].store ?? 'Food Court'}
+            storeName={o.items[0]?.store ?? 'Food Court'}
             itemsCount={o.items.length}
             total={o.total}
             eta={o.eta}
             statusText={'Order fulfilled'}
-            image={o.items[0].image ?? 'https://picsum.photos/id/1035/120/120'}
+            image={o.items[0]?.image ?? 'https://picsum.photos/id/1035/120/120'}
             onPress={() => navigation.getParent()?.navigate('App', { screen: 'OrderTracking', params: { orderId: o.id } })}
           />
         )}

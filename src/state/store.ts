@@ -192,7 +192,13 @@ export const useAppStore = create<AppState>((set) => ({
       // @ts-ignore
       if (globalThis?.localStorage) {
         const raw = globalThis.localStorage.getItem('orders');
-        if (raw) return { orders: JSON.parse(raw) };
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const next = Array.isArray(parsed)
+            ? parsed.map((o: any) => ({ ...o, items: Array.isArray(o?.items) ? o.items : [] }))
+            : s.orders;
+          return { orders: next };
+        }
       }
     } catch {}
     return { orders: s.orders };

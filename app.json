@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ErrandFront",
-    "slug": "ErrandFront",
+    "slug": "errandfront",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,18 +16,30 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.errand.errandfront",   // <-- ADD THIS
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_ANDROID_API_KEY"  // <-- Add later
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f1dd14c6-4c97-4e3d-9e1a-5d5a95bfa903"
+      }
+    },
+    "owner": "oladinnos-organization"
   }
 }

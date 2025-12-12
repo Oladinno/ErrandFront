@@ -18,7 +18,7 @@ export default function CartScreen() {
   React.useEffect(() => { hydrate(); }, []);
 
   const stores = useAppStore((s) => s.spots);
-  const uniqueStores = Array.from(new Set(cart.map((c) => c.store).filter(Boolean))) as string[];
+  const uniqueStores = Array.from(new Set(cart.map((c) => c?.store).filter(Boolean))) as string[];
   const shipping = uniqueStores.reduce((sum, st) => {
     const spot = stores.find((sp) => sp.title === st);
     return sum + (spot?.deliveryFee ?? 0);

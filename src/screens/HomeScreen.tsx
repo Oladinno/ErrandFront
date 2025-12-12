@@ -63,12 +63,12 @@ export default function HomeScreen() {
               renderItem={({ item: o }) => (
                 <Card
                   variant="order"
-                  title={o.items[0].name}
-                  subtitle={o.items[0].store}
+                  title={o.items[0]?.name ?? 'Order'}
+                  subtitle={o.items[0]?.store ?? 'FoodCourt'}
                   price={o.total}
-                  image={o.items[0].image ?? 'https://picsum.photos/id/1035/400/400'}
-                  rating={o.items[0].rating ?? 4.2}
-                  reviewsCount={o.items[0].reviews ?? 13}
+                  image={o.items[0]?.image ?? 'https://picsum.photos/id/1035/400/400'}
+                  rating={o.items[0]?.rating ?? 4.2}
+                  reviewsCount={o.items[0]?.reviews ?? 13}
                   onAdd={() => {
                     o.items.forEach((it) => {
                       addToCart({ id: it.id, name: it.name, price: it.price, image: it.image, store: it.store, rating: it.rating, reviews: it.reviews });

@@ -29,7 +29,7 @@ export default function ItemCustomizationModal({ visible, onClose, item }: ItemC
   const addToCart = useAppStore((s) => s.addToCart);
   const toggleSpotFavorite = useAppStore((s) => s.toggleSpotFavorite);
   const spots = useAppStore((s) => s.spots);
-  const spot = spots.find((sp) => sp.title === (item.store ?? '')) ?? spots[0];
+  const spot = spots.find((sp) => sp.title === (item?.store ?? '')) ?? spots[0];
   const [favorited, setFavorited] = React.useState<boolean>(spot?.isFavorite ?? false);
   const [qty, setQty] = React.useState<number>(1);
   const [notes, setNotes] = React.useState<string>('');
