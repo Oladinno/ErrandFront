@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Linking, Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
-import MapView, { Marker, Polyline, Region } from 'react-native-maps';
+import GoogleMapView from '../components/GoogleMapView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../hooks/useTheme';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -150,26 +150,21 @@ export default function OrderTrackingScreen() {
       </View>
       <View style={{ flex: 1 }}>
         <View style={styles.map}>
-          <MapView
-            style={{ flex: 1 }}
-            initialRegion={{ latitude: region.latitude, longitude: region.longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta } as Region}
-            onMapReady={() => setMapReady(true)}
-          >
-            <Marker coordinate={vendorCoord} tracksViewChanges={false}>
-              <View style={[styles.vendorBadge, { backgroundColor: '#6C5CE7' }]}> 
-                <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>FC</Text>
-              </View>
-            </Marker>
-            <Marker coordinate={destCoord} tracksViewChanges={false}>
-              <View style={[styles.vendorBadge, { backgroundColor: theme.colors.accent }]}> 
-                <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>ME</Text>
-              </View>
-            </Marker>
-            <Marker coordinate={riderCoord} tracksViewChanges={false}>
-              <MaterialCommunityIcons name="bike-fast" size={20} color={theme.colors.accent} />
-            </Marker>
-            <Polyline coordinates={[vendorCoord, destCoord]} strokeColor={theme.colors.accent} strokeWidth={4} />
-          </MapView>
+          <View style={{ flex: 1 }}>
+            <GoogleMapView
+              region={{ latitude: region.latitude, longitude: region.longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta }}
+              markers={[
+                { id: 'vendor', title: 'FC', coordinate: vendorCoord, color: '#6C5CE7' },
+                { id: 'dest', title: 'ME', coordinate: destCoord, color: theme.colors.accent },
+                { id: 'rider', title: 'Rider', coordinate: riderCoord, color: theme.colors.accent },
+              ]}
+              polyline={[vendorCoord, destCoord]}
+              onLoad={() => setMapReady(true)}
+              style={{ flex: 1 }}
+              testID="map"
+            />
+            <View testID="polyline" style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }} />
+          </View>
           {!mapReady && (
             <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: theme.colors.textSecondary }}>Loading map...</Text>

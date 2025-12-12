@@ -44,3 +44,47 @@ export type OrderResponse = {
 export type ErrorResponse = {
   error: { code: string; message: string };
 };
+
+export type AvailabilityStatus = 'available' | 'busy' | 'offline';
+export type AvailabilityResponse = {
+  providerId: string;
+  status: AvailabilityStatus;
+  updatedAt: string;
+  nextWindow?: string;
+};
+
+export type PricingVariation = { name: string; price: number; currency: string };
+export type PricingResponse = {
+  providerId: string;
+  basePrice: number;
+  currency: string;
+  variations: PricingVariation[];
+  surgeMultiplier?: number;
+  discountPercent?: number;
+  updatedAt: string;
+};
+
+export type PastJob = {
+  id: string;
+  title: string;
+  clientName: string;
+  startDate: string;
+  endDate: string;
+  responsibilities: string[];
+  technologies: string[];
+  outcome: string;
+  rating?: number;
+  ratingCount?: number;
+};
+
+export type ProfessionalProfile = {
+  id: string;
+  name: string;
+  category: string;
+  location: string;
+  distanceKm?: number;
+  image?: string;
+  description: string;
+  whatIDoSummary: string;
+  pastJobs: PastJob[];
+};

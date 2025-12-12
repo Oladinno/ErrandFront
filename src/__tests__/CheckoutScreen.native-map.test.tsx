@@ -2,12 +2,15 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { NativeCheckoutMap, getCurrentLocation } from '../../src/screens/CheckoutScreen';
 
-jest.mock('react-native-maps', () => {
+jest.mock('../../src/components/GoogleMapView', () => {
   const React = require('react');
   const { View } = require('react-native');
-  const MapView = ({ children, ...props }: any) => <View testID="map" {...props}>{children}</View>;
-  const Marker = ({ children, ...props }: any) => <View testID="marker" {...props}>{children}</View>;
-  return { __esModule: true, default: MapView, Marker };
+  const GoogleMapView = ({ children, onRegionChange, onSelect, onLoad, ...props }: any) => (
+    <View testID="map" {...props} onRegionChangeComplete={onRegionChange} onPress={(e: any) => onSelect?.(e?.nativeEvent?.coordinate)}>
+      {children}
+    </View>
+  );
+  return { __esModule: true, default: GoogleMapView };
 });
 
 jest.mock('expo-location', () => ({
@@ -57,4 +60,3 @@ describe('getCurrentLocation', () => {
     expect(coord).toBeNull();
   });
 });
-

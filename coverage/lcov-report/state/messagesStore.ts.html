@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for components/JobCard.tsx</title>
+    <title>Code coverage report for state/messagesStore.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">components</a> JobCard.tsx</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">state</a> messagesStore.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>2/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">12.5% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>1/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">12.5% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>1/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -115,40 +115,14 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -167,59 +141,106 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useTheme } from '../hooks/useTheme';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { create } from 'zustand';
 &nbsp;
-export type JobCardProps = {
-  title: string;
-  description?: string;
-  category: string;
-  onPress?: () =&gt; void;
+export type Message = {
+  id: string;
+  threadId: string;
+  sender: 'user' | 'partner';
+  text: string;
+  timestamp: string;
 };
 &nbsp;
-export default function JobCard({ title, description, category, onPress }: JobCardProps) {
-  const theme = useTheme();
-  return (
-    &lt;Pressable
-      onPress={onPress}
-      accessibilityLabel={title}
-      style={[styles.container, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
-    &gt;
-      &lt;View style={{ gap: 6 }}&gt;
-        &lt;Text style={{ color: theme.colors.textPrimary, fontWeight: '700', fontSize: 14, fontFamily: theme.typography.fontFamily }} numberOfLines={2}&gt;{title}&lt;/Text&gt;
-        {!!description &amp;&amp; (
-          &lt;Text style={{ color: theme.colors.textSecondary, fontSize: 12, lineHeight: 18, fontFamily: theme.typography.fontFamily }}&gt;{description}&lt;/Text&gt;
-        )}
-        &lt;View style={[styles.tag, { backgroundColor: theme.colors.accentMuted }]}
-          accessibilityLabel={`Category: ${category}`}&gt;
-          &lt;Text style={{ color: theme.colors.accent, fontWeight: '700', fontSize: 12, fontFamily: theme.typography.fontFamily }}&gt;{category}&lt;/Text&gt;
-        &lt;/View&gt;
-      &lt;/View&gt;
-    &lt;/Pressable&gt;
-  );
-}
+export type MessageThread = {
+  id: string;
+  partnerName: string;
+  partnerType: 'bot' | 'store' | 'person';
+  subtitle?: string;
+  avatar?: string;
+  unreadCount: number;
+};
 &nbsp;
-const styles = StyleSheet.create({
-  container: {
-    width: 260,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginRight: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: { height: 3, width: 0 },
-    elevation: 3,
-  },
-  tag: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-});</pre></td></tr></table></pre>
+export type MessagesState = {
+  threads: MessageThread[];
+  messages: Message[];
+  selectedThreadId?: string;
+  setSelectedThreadId: (id: string) =&gt; void;
+  sendMessage: (threadId: string, text: string) =&gt; void;
+  markThreadRead: (threadId: string) =&gt; void;
+};
+&nbsp;
+export const useMessagesStore = create&lt;MessagesState&gt;((set) =&gt; ({
+  threads: [
+    { id: 't1', partnerName: 'Padi', partnerType: 'bot', subtitle: 'ErrandSort ChatBot', unreadCount: 1 },
+    { id: 't2', partnerName: 'Food Court', partnerType: 'store', subtitle: 'Restaurant', unreadCount: 0 },
+    { id: 't3', partnerName: 'Johnson Richard', partnerType: 'person', subtitle: 'Courier', unreadCount: 0 },
+    { id: 't4', partnerName: 'Peter Terfa', partnerType: 'person', subtitle: 'Plumber', unreadCount: 0 },
+  ],
+  messages: [
+    { id: 'm1', threadId: 't1', sender: 'user', text: 'Hi, I need to order some groceries', timestamp: '2025-11-26T21:00:00Z' },
+    { id: 'm2', threadId: 't1', sender: 'partner', text: "Hello! I'd be happy to help you with your grocery order today.", timestamp: '2025-11-26T21:02:00Z' },
+    { id: 'm3', threadId: 't1', sender: 'user', text: 'Help me look for stores that are close to me and have high ratings', timestamp: '2025-11-26T21:05:00Z' },
+    { id: 'm4', threadId: 't2', sender: 'user', text: 'Hello', timestamp: '2025-11-26T21:00:00Z' },
+    { id: 'm5', threadId: 't2', sender: 'user', text: 'Are you open now?', timestamp: '2025-11-26T21:03:00Z' },
+    { id: 'm6', threadId: 't2', sender: 'partner', text: "Yes, we're open! Welcome to FoodCourt.", timestamp: '2025-11-26T21:05:00Z' },
+    { id: 'm7', threadId: 't2', sender: 'user', text: "Would you be able to deliver to the Al-Hikmah university male hostel", timestamp: '2025-11-26T21:07:00Z' },
+    { id: 'm8', threadId: 't3', sender: 'partner', text: 'I am on my way with your order', timestamp: '2025-11-26T21:07:00Z' },
+    { id: 'm9', threadId: 't4', sender: 'partner', text: 'I have gotten all your plumbing items', timestamp: '2025-11-26T21:07:00Z' },
+  ],
+  selectedThreadId: undefined,
+  setSelectedThreadId: <span class="fstat-no" title="function not covered" >(i</span>d) =&gt; <span class="cstat-no" title="statement not covered" >set({ selectedThreadId: id }),</span>
+  sendMessage: <span class="fstat-no" title="function not covered" >(t</span>hreadId, text) =&gt; <span class="cstat-no" title="statement not covered" >set(<span class="fstat-no" title="function not covered" >(s</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+    ...s,
+    messages: [...s.messages, { id: `m${Date.now()}`, threadId, sender: 'user', text, timestamp: new Date().toISOString() }],
+    threads: s.threads.map(<span class="fstat-no" title="function not covered" >(t</span>) =&gt; (<span class="cstat-no" title="statement not covered" >t.id === threadId ? { ...t, unreadCount: 0 } : t)</span>),
+  })),
+  markThreadRead: <span class="fstat-no" title="function not covered" >(t</span>hreadId) =&gt; <span class="cstat-no" title="statement not covered" >set(<span class="fstat-no" title="function not covered" >(s</span>) =&gt; {</span>
+    const threads = <span class="cstat-no" title="statement not covered" >s.threads.map(<span class="fstat-no" title="function not covered" >(t</span>) =&gt;</span>
+<span class="cstat-no" title="statement not covered" >      t.id === threadId ? { ...t, unreadCount: 0 } : t</span>
+    );
+<span class="cstat-no" title="statement not covered" >    return { ...s, threads };</span>
+  }),
+}));</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->

@@ -11,13 +11,14 @@ export type ProCardProps = {
   distanceText: string;
   isSaved?: boolean;
   onToggleSave?: (id: string) => void;
+  onPress?: () => void;
 };
 
-export default function ProCard({ id, name, category, location, distanceText, isSaved, onToggleSave }: ProCardProps) {
+export default function ProCard({ id, name, category, location, distanceText, isSaved, onToggleSave, onPress }: ProCardProps) {
   const theme = useTheme();
   return (
     <Pressable accessibilityLabel={name} style={[styles.container, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
-      onPress={() => {}}>
+      onPress={onPress}>
       <View style={styles.row}>
         <View style={styles.avatar} />
         <View style={{ flex: 1 }}>

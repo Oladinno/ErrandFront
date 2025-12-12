@@ -29,10 +29,11 @@ import RecentJobsScreen from '../screens/RecentJobsScreen';
 import OrderTrackingScreen from '../screens/OrderTrackingScreen';
 import PostJobScreen from '../screens/PostJobScreen';
 import JobPostedScreen from '../screens/JobPostedScreen';
+import ProviderProfileScreen from '../screens/ProviderProfileScreen';
 
 type PackageDraft = { pickupAddress: string; pickupName: string; pickupPhone: string; dropAddress: string; dropName: string; dropPhone: string; description: string; size: 'small'|'medium'|'large' };
 export type TabParamList = { Home: undefined; Explore: undefined; Activity: undefined; Profile: undefined };
-export type AppStackParamList = { Tabs: NavigatorScreenParams<TabParamList>; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string }; ExploreResults: { type: 'top_spots' | 'recommended' }; RecentOrders: undefined; RecentJobs: undefined };
+export type AppStackParamList = { Tabs: NavigatorScreenParams<TabParamList>; Store: { storeId: string }; OrderTracking: { orderId?: string }; PostJob: undefined; JobPosted: { jobId: string }; ExploreResults: { type: 'top_spots' | 'recommended' }; RecentOrders: undefined; RecentJobs: undefined; ProviderProfile: { providerId: string } };
 export type RootDrawerParamList = {
   App: NavigatorScreenParams<AppStackParamList>;
   Cart: undefined;
@@ -143,6 +144,7 @@ function App() {
       <AppStack.Screen name="OrderTracking" component={OrderTrackingScreen} />
       <AppStack.Screen name="PostJob" component={PostJobScreen} />
       <AppStack.Screen name="JobPosted" component={JobPostedScreen} />
+      <AppStack.Screen name="ProviderProfile" component={ProviderProfileScreen} />
     </AppStack.Navigator>
   );
 }

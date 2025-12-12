@@ -1,4 +1,4 @@
-import type { OrderTrackResponse, OrderCreateRequest, OrderCreateResponse, OrderResponse, ErrorResponse, OrderItemInput } from './types';
+import type { OrderTrackResponse, OrderCreateRequest, OrderCreateResponse, OrderResponse, ErrorResponse, OrderItemInput, AvailabilityResponse, PricingResponse, ProfessionalProfile } from './types';
 
 let originalFetch: any;
 const requests: Array<{ url: string; method: string; time: number }> = [];
@@ -103,6 +103,76 @@ export function startFetchMock() {
       const order = ordersDB[id];
       if (!order) return mk(404, { error: { code: 'not_found', message: 'Order not found' } });
       return mk(200, order);
+    }
+    if (url.startsWith('/api/v1/availability')) {
+      const u = new URL(url, 'http://localhost');
+      const providerId = u.searchParams.get('providerId');
+      const err = u.searchParams.get('err');
+      const headers = new Headers(init?.headers ?? {});
+      const key = (headers.get('authorization') ?? 'anon').slice(0,32);
+      if (!rateLimit(key)) return mk(429, { error: { code: 'too_many_requests', message: 'Rate limit exceeded' } });
+      if (err === '500') return mk(500, { error: { code: 'server_error', message: 'Unexpected error' } });
+      if (!providerId) return mk(400, { error: { code: 'invalid_request', message: 'providerId required' } });
+      await new Promise((r) => setTimeout(r, 200 + Math.floor(Math.random()*300)));
+      const statuses: AvailabilityResponse['status'][] = ['available','busy','offline'];
+      const body: AvailabilityResponse = { providerId, status: statuses[Math.floor(Date.now()/15000)%3], updatedAt: new Date().toISOString(), nextWindow: '~ 45 mins' };
+      return mk(200, body);
+    }
+    if (url.startsWith('/api/v1/pricing')) {
+      const u = new URL(url, 'http://localhost');
+      const providerId = u.searchParams.get('providerId');
+      const err = u.searchParams.get('err');
+      const headers = new Headers(init?.headers ?? {});
+      const key = (headers.get('authorization') ?? 'anon').slice(0,32);
+      if (!rateLimit(key)) return mk(429, { error: { code: 'too_many_requests', message: 'Rate limit exceeded' } });
+      if (err === '500') return mk(500, { error: { code: 'server_error', message: 'Unexpected error' } });
+      if (!providerId) return mk(400, { error: { code: 'invalid_request', message: 'providerId required' } });
+      await new Promise((r) => setTimeout(r, 200 + Math.floor(Math.random()*300)));
+      const body: PricingResponse = {
+        providerId: providerId!,
+        basePrice: 1200,
+        currency: 'NGN',
+        surgeMultiplier: Math.random() < 0.2 ? 1.2 : undefined,
+        discountPercent: Math.random() < 0.3 ? 10 : undefined,
+        updatedAt: new Date().toISOString(),
+        variations: [
+          { name: 'Basic call-out', price: 1200, currency: 'NGN' },
+          { name: 'Pipe leak fix', price: 3500, currency: 'NGN' },
+          { name: 'Tap installation', price: 4500, currency: 'NGN' },
+        ],
+      };
+      return mk(200, body);
+    }
+    if (url.startsWith('/api/v1/profile')) {
+      const u = new URL(url, 'http://localhost');
+      const providerId = u.searchParams.get('providerId');
+      const err = u.searchParams.get('err');
+      const headers = new Headers(init?.headers ?? {});
+      const key = (headers.get('authorization') ?? 'anon').slice(0,32);
+      if (!rateLimit(key)) return mk(429, { error: { code: 'too_many_requests', message: 'Rate limit exceeded' } });
+      if (err === '500') return mk(500, { error: { code: 'server_error', message: 'Unexpected error' } });
+      if (!providerId) return mk(400, { error: { code: 'invalid_request', message: 'providerId required' } });
+      await new Promise((r) => setTimeout(r, 200 + Math.floor(Math.random()*300)));
+      const profiles: Record<string, ProfessionalProfile> = {
+        pr1: {
+          id: 'pr1', name: 'Johnson Smith', category: 'Plumber', location: 'Sagamu', image: 'https://picsum.photos/id/1027/200/200',
+          description: 'I provide expert plumbing services with a focus on clean work, punctuality, and transparent pricing. From emergency repairs to planned installations, I deliver dependable solutions that respect your home and schedule. My approach emphasizes clear communication, thorough diagnostics, and durable repairs using quality materials, ensuring long-term reliability and customer satisfaction across diverse residential projects.',
+          whatIDoSummary: 'I specialize in leak detection, pipe replacements, fixture installations, bathroom and kitchen plumbing, and drain unblocking. I also handle water heater installation and maintenance, pressure balancing, and rapid emergency response in homes and small commercial spaces. My workflow includes assessment, plan discussion, precise execution, and tidy wrap‑up so you enjoy consistent water flow and peace of mind.',
+          pastJobs: [
+            { id: 'pj1', title: 'Fix Leaking Kitchen Sink and Replace Tap', clientName: 'Adewale', startDate: '2025-08-10', endDate: '2025-08-10', responsibilities: ['Diagnosed leak source','Replaced worn cartridges','Installed mixer tap'], technologies: ['PPR fittings','Teflon tape'], outcome: 'Leak resolved; improved pressure; client satisfied', rating: 4.5, ratingCount: 23 },
+          ],
+        },
+        pr2: {
+          id: 'pr2', name: 'Mary John', category: 'Electrician', location: 'Sagamu', image: 'https://picsum.photos/id/1005/200/200',
+          description: 'I deliver safe, code‑compliant electrical services ranging from troubleshooting to new wiring for renovations. With meticulous attention to load balancing and circuit protection, I ensure efficient, stable power throughout your property. Clear estimates, minimal disruption, and tidy finishes are central to my practice, supporting long‑term reliability and household safety.',
+          whatIDoSummary: 'My services include socket and lighting installation, panel upgrades, appliance circuits, fault isolation, surge protection, and smart home setup. I prioritize diagnostics, clean routing, and product recommendations that match usage patterns and budgets. Emergency calls receive swift response with a focus on prevention and safe restoration.',
+          pastJobs: [
+            { id: 'pj4', title: 'Lighting retrofit and dimmer install', clientName: 'Chinedu', startDate: '2025-05-10', endDate: '2025-05-10', responsibilities: ['Rewired lighting loop','Installed dimmers','Tested load'], technologies: ['LED','MCB'], outcome: 'Even lighting; energy savings; client pleased', rating: 4.6, ratingCount: 19 },
+          ],
+        },
+      };
+      const prof = profiles[providerId!] ?? profiles['pr1'];
+      return mk(200, prof);
     }
     return originalFetch(input, init);
   };

@@ -164,7 +164,17 @@ export default function HomeScreen() {
             <SectionHeader title="Top Rated Professionals" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 16 }}>
               {filteredPros.map((p) => (
-                <ProCard key={p.id} id={p.id} name={p.name} category={p.category} location={p.location} distanceText={`${p.distanceKm}km away`} isSaved={savedProIds.includes(p.id)} onToggleSave={toggleSavePro} />
+                <ProCard
+                  key={p.id}
+                  id={p.id}
+                  name={p.name}
+                  category={p.category}
+                  location={p.location}
+                  distanceText={`${p.distanceKm}km away`}
+                  isSaved={savedProIds.includes(p.id)}
+                  onToggleSave={toggleSavePro}
+                  onPress={() => navigation.getParent()?.navigate('App', { screen: 'ProviderProfile', params: { providerId: p.id } })}
+                />
               ))}
             </ScrollView>
           </View>

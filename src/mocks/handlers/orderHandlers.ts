@@ -1,5 +1,6 @@
 import type { OrderTrackResponse } from '../../mocks/types';
 import type { OrderCreateRequest, OrderCreateResponse, OrderResponse, ErrorResponse, OrderItemInput } from '../../mocks/types';
+import type { AvailabilityResponse, PricingResponse, ProfessionalProfile } from '../types';
 
 function pickStatus(seed?: string): OrderTrackResponse['status'] {
   if (seed === 'CREATED' || seed === 'PREPARING' || seed === 'OUT_FOR_DELIVERY' || seed === 'DELIVERED') return seed;
@@ -81,6 +82,86 @@ export function createOrderHandlers(rest: any) {
         eta: '15-25 mins',
       };
       return res(ctx.status(200), ctx.json(body));
+    }),
+
+    // GET /availability
+    rest.get('/api/v1/availability', async (req: any, res: any, ctx: any) => {
+      const providerId = req.url.searchParams.get('providerId');
+      const err = req.url.searchParams.get('err');
+      const key = (req.headers.get('authorization') ?? 'anon').slice(0,32);
+      if (!rateLimit(key)) return res(...error(ctx, 429, { error: { code: 'too_many_requests', message: 'Rate limit exceeded' } }));
+      if (err === '500') return res(...error(ctx, 500, { error: { code: 'server_error', message: 'Unexpected error' } }));
+      if (!providerId) return res(...error(ctx, 400, { error: { code: 'invalid_request', message: 'providerId required' } }));
+      const statuses: AvailabilityResponse['status'][] = ['available','busy','offline'];
+      await new Promise((r) => setTimeout(r, 200 + Math.floor(Math.random()*300)));
+      const body: AvailabilityResponse = { providerId, status: statuses[Math.floor(Date.now()/15000)%3], updatedAt: new Date().toISOString(), nextWindow: '~ 45 mins' };
+      return res(ctx.status(200), ctx.json(body));
+    }),
+
+    // GET /pricing
+    rest.get('/api/v1/pricing', async (req: any, res: any, ctx: any) => {
+      const providerId = req.url.searchParams.get('providerId');
+      const err = req.url.searchParams.get('err');
+      const key = (req.headers.get('authorization') ?? 'anon').slice(0,32);
+      if (!rateLimit(key)) return res(...error(ctx, 429, { error: { code: 'too_many_requests', message: 'Rate limit exceeded' } }));
+      if (err === '500') return res(...error(ctx, 500, { error: { code: 'server_error', message: 'Unexpected error' } }));
+      if (!providerId) return res(...error(ctx, 400, { error: { code: 'invalid_request', message: 'providerId required' } }));
+      await new Promise((r) => setTimeout(r, 200 + Math.floor(Math.random()*300)));
+      const body: PricingResponse = {
+        providerId,
+        basePrice: 1200,
+        currency: 'NGN',
+        surgeMultiplier: Math.random() < 0.2 ? 1.2 : undefined,
+        discountPercent: Math.random() < 0.3 ? 10 : undefined,
+        updatedAt: new Date().toISOString(),
+        variations: [
+          { name: 'Basic call-out', price: 1200, currency: 'NGN' },
+          { name: 'Pipe leak fix', price: 3500, currency: 'NGN' },
+          { name: 'Tap installation', price: 4500, currency: 'NGN' },
+        ],
+      };
+      return res(ctx.status(200), ctx.json(body));
+    }),
+
+    // GET /profile
+    rest.get('/api/v1/profile', async (req: any, res: any, ctx: any) => {
+      const providerId = req.url.searchParams.get('providerId');
+      const err = req.url.searchParams.get('err');
+      const key = (req.headers.get('authorization') ?? 'anon').slice(0,32);
+      if (!rateLimit(key)) return res(...error(ctx, 429, { error: { code: 'too_many_requests', message: 'Rate limit exceeded' } }));
+      if (err === '500') return res(...error(ctx, 500, { error: { code: 'server_error', message: 'Unexpected error' } }));
+      if (!providerId) return res(...error(ctx, 400, { error: { code: 'invalid_request', message: 'providerId required' } }));
+      await new Promise((r) => setTimeout(r, 200 + Math.floor(Math.random()*300)));
+      const profiles: Record<string, ProfessionalProfile> = {
+        pr1: {
+          id: 'pr1',
+          name: 'Johnson Smith',
+          category: 'Plumber',
+          location: 'Sagamu',
+          image: 'https://picsum.photos/id/1027/200/200',
+          description: 'I provide expert plumbing services with a focus on clean work, punctuality, and transparent pricing. From emergency repairs to planned installations, I deliver dependable solutions that respect your home and schedule. My approach emphasizes clear communication, thorough diagnostics, and durable repairs using quality materials, ensuring long-term reliability and customer satisfaction across diverse residential projects.',
+          whatIDoSummary: 'I specialize in leak detection, pipe replacements, fixture installations, bathroom and kitchen plumbing, and drain unblocking. I also handle water heater installation and maintenance, pressure balancing, and rapid emergency response in homes and small commercial spaces. My workflow includes assessment, plan discussion, precise execution, and tidy wrap‑up so you enjoy consistent water flow and peace of mind.',
+          pastJobs: [
+            { id: 'pj1', title: 'Fix Leaking Kitchen Sink and Replace Tap', clientName: 'Adewale', startDate: '2025-08-10', endDate: '2025-08-10', responsibilities: ['Diagnosed leak source', 'Replaced worn cartridges', 'Installed mixer tap'], technologies: ['PPR fittings','Teflon tape'], outcome: 'Leak resolved; improved pressure; client satisfied', rating: 4.5, ratingCount: 23 },
+            { id: 'pj2', title: 'Water heater setup & maintenance', clientName: 'Ngozi', startDate: '2025-07-02', endDate: '2025-07-02', responsibilities: ['Installed electric heater','Tested safety valve','Optimized temperature'], technologies: ['PEX','Dielectric unions'], outcome: 'Stable hot water; reduced power spikes', rating: 4.3, ratingCount: 13 },
+            { id: 'pj3', title: 'Install and repair taps, sinks & showers', clientName: 'Musa', startDate: '2025-06-12', endDate: '2025-06-13', responsibilities: ['Mounted sink','Aligned drain','Sealed joints'], technologies: ['PVC','Silicone sealant'], outcome: 'No drips; aligned fixtures; smooth outflow', rating: 4.2, ratingCount: 12 },
+          ],
+        },
+        pr2: {
+          id: 'pr2',
+          name: 'Mary John',
+          category: 'Electrician',
+          location: 'Sagamu',
+          image: 'https://picsum.photos/id/1005/200/200',
+          description: 'I deliver safe, code‑compliant electrical services ranging from troubleshooting to new wiring for renovations. With meticulous attention to load balancing and circuit protection, I ensure efficient, stable power throughout your property. Clear estimates, minimal disruption, and tidy finishes are central to my practice, supporting long‑term reliability and household safety.',
+          whatIDoSummary: 'My services include socket and lighting installation, panel upgrades, appliance circuits, fault isolation, surge protection, and smart home setup. I prioritize diagnostics, clean routing, and product recommendations that match usage patterns and budgets. Emergency calls receive swift response with a focus on prevention and safe restoration.',
+          pastJobs: [
+            { id: 'pj4', title: 'Lighting retrofit and dimmer install', clientName: 'Chinedu', startDate: '2025-05-10', endDate: '2025-05-10', responsibilities: ['Rewired lighting loop','Installed dimmers','Tested load'], technologies: ['LED','MCB'], outcome: 'Even lighting; energy savings; client pleased', rating: 4.6, ratingCount: 19 },
+          ],
+        },
+      };
+      const prof = profiles[providerId] ?? profiles['pr1'];
+      return res(ctx.status(200), ctx.json(prof));
     }),
 
     // POST /api/v1/order

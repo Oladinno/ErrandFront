@@ -16,7 +16,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.errand.errandfront",   // <-- ADD THIS
+      "package": "com.errand.errandfront",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,7 +25,7 @@
       "predictiveBackGestureEnabled": false,
       "config": {
         "googleMaps": {
-          "apiKey": "YOUR_ANDROID_API_KEY"  // <-- Add later
+          "apiKey": "AIzaSyDKleN93RxELsT2ikXQaNyNS1ZAik7rOJs"
         }
       }
     },

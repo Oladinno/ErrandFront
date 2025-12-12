@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, FlatList, ScrollView, Alert, TextInput } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import GoogleMapView from '../components/GoogleMapView';
 import * as Location from 'expo-location';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../hooks/useTheme';
@@ -36,6 +36,7 @@ export default function CheckoutScreen() {
   const [selectedCoord, setSelectedCoord] = React.useState<Coordinate | null>(null);
   const [mapLoaded, setMapLoaded] = React.useState(false);
   const [mapError, setMapError] = React.useState<string | null>(null);
+  const [mapInitKey, setMapInitKey] = React.useState(0);
 
   React.useEffect(() => {
     setItems(cart.map((c) => ({ id: c.id, name: c.name, price: c.price, image: c.image, quantity: c.qty ?? 1, options: buildOptions(c) })));
@@ -64,6 +65,16 @@ export default function CheckoutScreen() {
     return () => { active = false; };
   }, []);
 
+  React.useEffect(() => {
+    let t: any;
+    if (!mapLoaded) {
+      t = setTimeout(() => {
+        setMapError((e) => e ?? 'Unable to load map. Check Google Play services or API key');
+      }, 8000);
+    }
+    return () => { if (t) clearTimeout(t); };
+  }, [mapLoaded]);
+
 
   return (
     <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: theme.colors.background }]}> 
@@ -84,6 +95,7 @@ export default function CheckoutScreen() {
               <Text style={{ color: theme.colors.textPrimary, fontWeight: '700' }}>Delivery</Text>
               <View style={{ width: '100%', height: 200 }}>
                 <NativeCheckoutMap
+                  key={mapInitKey}
                   region={region}
                   markers={computePOIs(region)}
                   showsUserLocation
@@ -93,7 +105,14 @@ export default function CheckoutScreen() {
                 />
                 {!mapLoaded && (
                   <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: theme.colors.textSecondary }}>Loading map...</Text>
+                    <Text style={{ color: mapError ? theme.colors.danger : theme.colors.textSecondary }}>
+                      {mapError ?? 'Loading map...'}
+                    </Text>
+                    {!!mapError && (
+                      <Pressable onPress={() => { setMapError(null); setMapInitKey((k) => k + 1); }} style={{ marginTop: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, backgroundColor: theme.colors.card }} accessibilityLabel="Retry map">
+                        <Text style={{ color: theme.colors.accent, fontWeight: '700' }}>Retry</Text>
+                      </Pressable>
+                    )}
                   </View>
                 )}
               </View>
@@ -276,24 +295,26 @@ export async function getCurrentLocation(): Promise<Coordinate | null> {
 
 export function NativeCheckoutMap({ region, markers, showsUserLocation, onSelect, onLoad, onRegionChange }: MapProps) {
   const theme = useTheme();
-  const initialRegion: Region = { latitude: region.latitude, longitude: region.longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
+  const initialRegion: MapRegion = { latitude: region.latitude, longitude: region.longitude, latitudeDelta: region.latitudeDelta, longitudeDelta: region.longitudeDelta };
   return (
-    <MapView
+    <View
+      testID="map"
       style={{ width: '100%', height: '100%', borderRadius: 12 }}
-      initialRegion={initialRegion}
-      onRegionChangeComplete={(r) => onRegionChange?.({ latitude: r.latitude, longitude: r.longitude, latitudeDelta: r.latitudeDelta, longitudeDelta: r.longitudeDelta })}
-      showsUserLocation={!!showsUserLocation}
-      onMapReady={() => onLoad?.()}
-      onPress={(e) => onSelect?.({ latitude: e.nativeEvent.coordinate.latitude, longitude: e.nativeEvent.coordinate.longitude })}
+      {...({
+        onRegionChangeComplete: (r: any) => onRegionChange?.(r as MapRegion),
+        onPress: (e: any) => onSelect?.({ latitude: e?.nativeEvent?.coordinate?.latitude, longitude: e?.nativeEvent?.coordinate?.longitude }),
+      } as any)}
     >
-      {markers.map((m) => (
-        <Marker key={m.id} coordinate={{ latitude: m.coordinate.latitude, longitude: m.coordinate.longitude }} tracksViewChanges={false}>
-          <View style={{ paddingHorizontal: 6, paddingVertical: 4, borderRadius: 12, backgroundColor: m.color ?? theme.colors.accent }}>
-            <Text style={{ color: '#fff', fontSize: 10 }}>{m.title}</Text>
-          </View>
-        </Marker>
-      ))}
-    </MapView>
+      <GoogleMapView
+        region={initialRegion}
+        markers={markers}
+        showsUserLocation={!!showsUserLocation}
+        onSelect={onSelect}
+        onLoad={onLoad}
+        onRegionChange={onRegionChange}
+        style={{ width: '100%', height: '100%', borderRadius: 12 }}
+      />
+    </View>
   );
 }
 

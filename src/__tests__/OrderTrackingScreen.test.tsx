@@ -3,13 +3,11 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { Linking } from 'react-native';
 import OrderTrackingScreen from '../../src/screens/OrderTrackingScreen';
 
-jest.mock('react-native-maps', () => {
+jest.mock('../../src/components/GoogleMapView', () => {
   const React = require('react');
   const { View } = require('react-native');
-  const MapView = ({ children, ...props }: any) => <View testID="map" {...props}>{children}</View>;
-  const Marker = ({ children, ...props }: any) => <View testID="marker" {...props}>{children}</View>;
-  const Polyline = ({ ...props }: any) => <View testID="polyline" {...props} />;
-  return { __esModule: true, default: MapView, Marker, Polyline };
+  const GoogleMapView = ({ children, ...props }: any) => <View testID="map" {...props}>{children}</View>;
+  return { __esModule: true, default: GoogleMapView };
 });
 
 jest.mock('@react-navigation/native', () => {
